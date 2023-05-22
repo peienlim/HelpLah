@@ -1,11 +1,31 @@
 import React, {useState} from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, TextInput} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, TextInput, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
+const auth = getAuth();
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    
+    async function handleSignIn() {
+      if (email === '' || password === '') {
+        Alert.alert("Both email and password are required!");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        await navigation.navigate('HomeScreen');
+        setEmail("");
+        setPassword("");
+
+      } catch(error) {
+        Alert.alert("Check your email and password!");
+      }
+    }
 
     return (
       <SafeAreaView style={styles.background}>
@@ -33,7 +53,7 @@ export default function LoginScreen({ navigation }) {
         </View>
   
         <View style = {{ paddingTop: 15, paddingBottom: 15 }}>
-          <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={styles.signInButton}>
+          <TouchableOpacity onPress={handleSignIn} style={styles.signInButton}>
             <Text style={{fontFamily: 'spacemono-bold'}}>Sign In</Text>
           </TouchableOpacity>
         </View>

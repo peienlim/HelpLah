@@ -1,14 +1,35 @@
 import React, {useState} from 'react';
-import { Text, View, SafeAreaView, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
+import { Text, View, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignUpScreen({ navigation }) {
 
-    //const[name, setName] = useState('');
     const[email, setEmail] = useState('');
     const[password, setPassword] = useState('');
     const[confirmPassword, setConfirmPassword] = useState('');
+    
+    const auth = getAuth();
 
+    async function handleSignUp() {
+        if (password != confirmPassword) {
+            Alert.alert("Confirmed password deos not match");
+            return;
+        } 
+
+        if (email==="" || password==="" || confirmPassword==="") {
+            Alert.alert("All fields are required!");
+            return;
+        }
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            await navigation.goBack();
+        } catch (error) {
+            Alert.alert("Check the validility of your email!");
+        }
+    }
 
     return (
     <SafeAreaView style={styles.background}>
@@ -46,7 +67,7 @@ export default function SignUpScreen({ navigation }) {
         </View>
 
         <View style = {{paddingTop: 50}}>
-            <TouchableOpacity style={styles.signUpButton} onPress = {() => navigation.goBack()}>
+            <TouchableOpacity style={styles.signUpButton} onPress = {handleSignUp}>
                 <Text style={{fontFamily: 'spacemono-bold'}}>Sign Up</Text>
             </TouchableOpacity>
         </View>

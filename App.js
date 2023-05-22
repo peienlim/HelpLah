@@ -1,3 +1,4 @@
+import './firebaseConfig';
 import { StyleSheet} from 'react-native';
 import React, {useEffect} from 'react';
 
@@ -17,7 +18,7 @@ const Stack = createStackNavigator();
 function LoginStack() {
     return (
    
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{headerShown:false}}>
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
