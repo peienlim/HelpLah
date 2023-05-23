@@ -18,7 +18,7 @@ export default function LoginScreen({ navigation }) {
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        await navigation.navigate('HomeScreen');
+        await navigation.navigate('TabStack');
         setEmail("");
         setPassword("");
 

@@ -1,27 +1,46 @@
 import './firebaseConfig';
-import { StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, {useEffect} from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import HomeScreen from './screens/home';
 import LoginScreen from './screens/login';
 import SignUpScreen from './screens/signUp';
+import HomeScreen from './screens/home';
+import WeeklyScreen from './screens/weekly';
+import StatisticsScreen from './screens/statistics';
+import CommunityScreen from './screens/community';
+import TaskAdderScreen from './screens/taskAdder';
 
 import {useFonts} from "expo-font";
 import * as SplashScreen from 'expo-splash-screen';
 
+const Tab = createBottomTabNavigator();
+
+function TabStack() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="HomeScreen" component = {HomeScreen} />
+      <Tab.Screen name="WeeklyScreen" component = {WeeklyScreen} />
+      <Tab.Screen name="TaskAdderScreen" component = {TaskAdderScreen} />
+      <Tab.Screen name="StatisticsScreen" component={StatisticsScreen} />
+      <Tab.Screen name="CommunityScreen" component={CommunityScreen} />
+    </Tab.Navigator>
+  );
+}
+
 
 const Stack = createStackNavigator();
 
-function LoginStack() {
+function MainStack() {
     return (
    
     <Stack.Navigator screenOptions={{headerShown:false}}>
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="TabStack" component={TabStack} />
     </Stack.Navigator>
    
     );
@@ -48,7 +67,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-        <LoginStack />
+        <MainStack />
     </NavigationContainer>
   );
 }
