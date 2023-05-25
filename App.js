@@ -5,6 +5,7 @@ import React, {useEffect} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator} from '@react-navigation/drawer';
 
 import LoginScreen from './screens/login';
 import SignUpScreen from './screens/signUp';
@@ -13,20 +14,56 @@ import WeeklyScreen from './screens/weekly';
 import StatisticsScreen from './screens/statistics';
 import CommunityScreen from './screens/community';
 import TaskAdderScreen from './screens/taskAdder';
+import ProfileScreen from './screens/profile';
+import LogOutScreen from './screens/logout';
 
 import {useFonts} from "expo-font";
 import * as SplashScreen from 'expo-splash-screen';
+
+import Ionicons from '@expo/vector-icons/Ionicons';
+
+const Drawer = createDrawerNavigator();
+
+function DrawerStack() {
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="Home" component= {HomeScreen} /> 
+      <Drawer.Screen name="Profile" component= {ProfileScreen} />
+      <Drawer.Screen name="LogOut" component= {LogOutScreen} />
+    </Drawer.Navigator>
+  );
+}
 
 const Tab = createBottomTabNavigator();
 
 function TabStack() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="HomeScreen" component = {HomeScreen} />
-      <Tab.Screen name="WeeklyScreen" component = {WeeklyScreen} />
-      <Tab.Screen name="TaskAdderScreen" component = {TaskAdderScreen} />
-      <Tab.Screen name="StatisticsScreen" component={StatisticsScreen} />
-      <Tab.Screen name="CommunityScreen" component={CommunityScreen} />
+    <Tab.Navigator tabBarOptions= {{showLabel: false}} screenOptions={{tabBarActiveTintColor: '#9AC791', headerShown: false}}>
+      <Tab.Screen 
+          name="Drawer" 
+          component = {DrawerStack} 
+          options={{tabBarIcon: ({color, size}) => (<Ionicons name='home-outline' color={color} size={size} />),}}
+      />
+      <Tab.Screen 
+          name="WeeklyScreen" 
+          component = {WeeklyScreen} 
+          options={{tabBarIcon: ({color, size}) => (<Ionicons name='calendar-outline' color={color} size={size} />),}}
+      />
+      <Tab.Screen 
+          name="TaskAdderScreen" 
+          component = {TaskAdderScreen} 
+          options={{tabBarIcon: ({color, size}) => (<Ionicons name='add-circle-outline' color={color} size={size} />),}}
+      />
+      <Tab.Screen 
+          name="StatisticsScreen" 
+          component={StatisticsScreen} 
+          options={{tabBarIcon: ({color, size}) => (<Ionicons name='bar-chart-outline' color={color} size={size} />), }}
+      />
+      <Tab.Screen 
+          name="CommunityScreen" 
+          component={CommunityScreen}
+          options={{tabBarIcon: ({color, size}) => (<Ionicons name='people-outline' color={color} size={size} />), }}
+      />
     </Tab.Navigator>
   );
 }
@@ -85,6 +122,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  bottomBar: {
+
   }
 
 });
