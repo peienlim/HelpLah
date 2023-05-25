@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import React, {useEffect} from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+/* import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator} from '@react-navigation/drawer';
 
@@ -16,13 +16,14 @@ import CommunityScreen from './screens/community';
 import TaskAdderScreen from './screens/taskAdder';
 import ProfileScreen from './screens/profile';
 import LogOutScreen from './screens/logout';
-
+ */
 import {useFonts} from "expo-font";
 import * as SplashScreen from 'expo-splash-screen';
 
-import Ionicons from '@expo/vector-icons/Ionicons';
+//import Ionicons from '@expo/vector-icons/Ionicons';
+import MainStack from './navigation/stackNavigation';
 
-const Drawer = createDrawerNavigator();
+/* const Drawer = createDrawerNavigator();
 
 function DrawerStack() {
   return (
@@ -81,7 +82,7 @@ function MainStack() {
     </Stack.Navigator>
    
     );
-}
+} */
 
 export default function App() {
   const [fontsLoaded] = useFonts({
