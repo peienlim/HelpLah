@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DrawerStack from './drawerNavigation';
 import WeeklyScreen from '../screens/weekly';
 import TaskAdderScreen from '../screens/taskAdder';
-import StatisticsScreen from '../screens/statistics';
+import FocusScreen from '../screens/statistics';
 import CommunityScreen from '../screens/community';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -29,9 +29,9 @@ export default function TabStack() {
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='add-circle-outline' color={color} size={size} />),}}
       />
       <Tab.Screen 
-          name="StatisticsScreen" 
-          component={StatisticsScreen} 
-          options={{tabBarIcon: ({color, size}) => (<Ionicons name='bar-chart-outline' color={color} size={size} />), }}
+          name="FocusScreen" 
+          component={FocusScreen} 
+          options={{tabBarIcon: ({color, size}) => (<Ionicons name='happy-outline' color={color} size={size} />), }}
       />
       <Tab.Screen 
           name="CommunityScreen" 
