@@ -12,7 +12,7 @@ const Tab = createBottomTabNavigator();
 
 export default function TabStack() {
   return (
-    <Tab.Navigator tabBarOptions= {{showLabel: false}} screenOptions={{tabBarActiveTintColor: '#9AC791', headerShown: false}}>
+    <Tab.Navigator screenOptions={{tabBarActiveTintColor: '#9AC791', headerShown: false, showLabel: false}}>
       <Tab.Screen 
           name="Drawer" 
           component = {DrawerStack} 

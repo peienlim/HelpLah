@@ -14,7 +14,7 @@ export default function SignUpScreen({ navigation }) {
 
     async function handleSignUp() {
         if (password != confirmPassword) {
-            Alert.alert("Confirmed password deos not match");
+            Alert.alert("Confirmed password does not match");
             return;
         } 
 
@@ -27,7 +27,7 @@ export default function SignUpScreen({ navigation }) {
             await createUserWithEmailAndPassword(auth, email, password);
             await navigation.goBack();
         } catch (error) {
-            Alert.alert("Check the validility of your email!");
+            Alert.alert("Check the validity of your email/Password length!");
         }
     }
 
