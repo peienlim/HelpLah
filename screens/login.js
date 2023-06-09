@@ -1,13 +1,16 @@
 import React, {useState} from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, TextInput, Alert, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import { useTogglePwVisibility } from '../hook/useTogglePwVisibility';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const auth = getAuth();
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
+    const { pwVisibility, rightIcon, handlePwVisibility } =
+      useTogglePwVisibility();
     const [password, setPassword] = useState('');
     
     async function handleSignIn() {
@@ -40,6 +43,7 @@ export default function LoginScreen({ navigation }) {
                 placeholder = "Email..."
                 onChangeText = {(email) => setEmail(email)}
             />
+            
         </View>
         
         <View style = {styles.inputButton}>
@@ -49,7 +53,11 @@ export default function LoginScreen({ navigation }) {
                 style = {{fontFamily: 'spacemono', flexGrow: 1}}
                 placeholder = "Password..."
                 onChangeText = {(password) => setPassword(password)}
+                secureTextEntry={pwVisibility}
             />
+            <Pressable onPress={handlePwVisibility}>
+              <Ionicons name={rightIcon == 'eye' ? 'eye' : 'eye-off'} color='black' size={15} paddingRight={10}/>
+            </Pressable>
         </View>
   
         <View style = {{ paddingTop: 15, paddingBottom: 15 }}>
