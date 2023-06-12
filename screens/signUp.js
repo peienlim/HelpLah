@@ -1,12 +1,15 @@
 import React, {useState} from 'react';
-import { Text, View, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Alert, Pressable, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import { useTogglePwVisibility } from '../hook/useTogglePwVisibility';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignUpScreen({ navigation }) {
 
     const[email, setEmail] = useState('');
+    const { pwVisibility, rightIcon, handlePwVisibility } =
+      useTogglePwVisibility();
     const[password, setPassword] = useState('');
     const[confirmPassword, setConfirmPassword] = useState('');
     
@@ -32,47 +35,59 @@ export default function SignUpScreen({ navigation }) {
     }
 
     return (
-    <SafeAreaView style={styles.background}>
-        
-        <Text style={{fontFamily:'spacemono-bold', fontSize: 25, paddingBottom: 35, paddingRight: 200}}>Sign Up</Text>
+    <TouchableWithoutFeedback onPress={() => {
+        Keyboard.dismiss();
+    }}>
+        <SafeAreaView style={styles.background}>
+            
+            <Text style={{fontFamily:'spacemono-bold', fontSize: 25, paddingBottom: 35, paddingRight: 200}}>Sign Up</Text>
 
-        <View style={styles.inputButton}> 
-            <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
-            <TextInput
-                value = {email} 
-                style = {{fontFamily: 'spacemono', flexGrow: 1}}
-                placeholder = "Email..."
-                onChangeText = {(email) => setEmail(email)}
-             />
-        </View>
+            <View style={styles.inputButton}> 
+                <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
+                <TextInput
+                    value = {email} 
+                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    placeholder = "Email..."
+                    onChangeText = {(email) => setEmail(email)}
+                />
+            </View>
 
-        <View style={styles.inputButton}> 
-            <Ionicons name='key-outline' color='black' size={15} paddingRight={10}/>
-            <TextInput
-                value = {password} 
-                style = {{fontFamily: 'spacemono', flexGrow: 1}}
-                placeholder = "Password..."
-                onChangeText = {(password) => setPassword(password)}
-             />
-        </View>
+            <View style={styles.inputButton}> 
+                <Ionicons name='key-outline' color='black' size={15} paddingRight={10}/>
+                <TextInput
+                    value = {password} 
+                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    placeholder = "Password..."
+                    onChangeText = {(password) => setPassword(password)}
+                    secureTextEntry = {pwVisibility}
+                />
+                <Pressable onPress={handlePwVisibility}>
+                <Ionicons name={rightIcon == 'eye' ? 'eye' : 'eye-off'} color='black' size={15} paddingRight={10}/>
+                </Pressable>
+            </View>
 
-        <View style={styles.inputButton}> 
-            <Ionicons name='lock-closed-outline' color='black' size={15} paddingRight={10}/>
-            <TextInput
-                value = {confirmPassword} 
-                style = {{fontFamily: 'spacemono', flexGrow: 1}}
-                placeholder = "Confirm Password..."
-                onChangeText = {(confirmPassword) => setConfirmPassword(confirmPassword)}
-             />
-        </View>
+            <View style={styles.inputButton}> 
+                <Ionicons name='lock-closed-outline' color='black' size={15} paddingRight={10}/>
+                <TextInput
+                    value = {confirmPassword} 
+                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    placeholder = "Confirm Password..."
+                    onChangeText = {(confirmPassword) => setConfirmPassword(confirmPassword)}
+                    secureTextEntry={pwVisibility}
+                />
+                <Pressable onPress={handlePwVisibility}>
+                <Ionicons name={rightIcon == 'eye' ? 'eye' : 'eye-off'} color='black' size={15} paddingRight={10}/>
+                </Pressable>
+            </View>
 
-        <View style = {{paddingTop: 50}}>
-            <TouchableOpacity style={styles.signUpButton} onPress = {handleSignUp}>
-                <Text style={{fontFamily: 'spacemono-bold'}}>Sign Up</Text>
-            </TouchableOpacity>
-        </View>
+            <View style = {{paddingTop: 50}}>
+                <TouchableOpacity style={styles.signUpButton} onPress = {handleSignUp}>
+                    <Text style={{fontFamily: 'spacemono-bold'}}>Sign Up</Text>
+                </TouchableOpacity>
+            </View>
 
-    </SafeAreaView>
+        </SafeAreaView>
+    </TouchableWithoutFeedback>
     );
 }
 
