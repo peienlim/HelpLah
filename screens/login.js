@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, TextInput, Alert, Pressable } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, TextInput, Alert, Pressable, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useTogglePwVisibility } from '../hook/useTogglePwVisibility';
@@ -31,48 +31,52 @@ export default function LoginScreen({ navigation }) {
     }
 
     return (
-      <SafeAreaView style={styles.background}>
-               
-        <Text style={styles.helplah}>HelpLah!</Text>
+      <TouchableWithoutFeedback onPress={() => {
+        Keyboard.dismiss();
+      }}>
+        <SafeAreaView style={styles.background}>
+                  
+          <Text style={styles.helplah}>HelpLah!</Text>
 
-        <View style={styles.inputButton}>
-            <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
-            <TextInput
-                value = {email} 
-                style = {{fontFamily: 'spacemono', flexGrow: 1, paddingRight: 20}}
-                placeholder = "Email..."
-                onChangeText = {(email) => setEmail(email)}
-            />
-            
-        </View>
-        
-        <View style = {styles.inputButton}>
-            <Ionicons name='key-outline' color='black' size={15} paddingRight={10}/>
-            <TextInput
-                value = {password}
-                style = {{fontFamily: 'spacemono', flexGrow: 1}}
-                placeholder = "Password..."
-                onChangeText = {(password) => setPassword(password)}
-                secureTextEntry={pwVisibility}
-            />
-            <Pressable onPress={handlePwVisibility}>
-              <Ionicons name={rightIcon == 'eye' ? 'eye' : 'eye-off'} color='black' size={15} paddingRight={10}/>
-            </Pressable>
-        </View>
-  
-        <View style = {{ paddingTop: 15, paddingBottom: 15 }}>
-          <TouchableOpacity onPress={handleSignIn} style={styles.signInButton}>
-            <Text style={{fontFamily: 'spacemono-bold'}}>Sign In</Text>
-          </TouchableOpacity>
-        </View>
-  
-        <View style = {{ paddingTop: 10, paddingBottom: 15 }}>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
-            <Text style={{fontFamily: 'spacemono-bold', color: '#86C68C'}}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-    
-      </SafeAreaView>
+          <View style={styles.inputButton}>
+              <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
+              <TextInput
+                  value = {email} 
+                  style = {{fontFamily: 'spacemono', flexGrow: 1, paddingRight: 20}}
+                  placeholder = "Email..."
+                  onChangeText = {(email) => setEmail(email)}
+              />
+              
+          </View>
+          
+          <View style = {styles.inputButton}>
+              <Ionicons name='key-outline' color='black' size={15} paddingRight={10}/>
+              <TextInput
+                  value = {password}
+                  style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                  placeholder = "Password..."
+                  onChangeText = {(password) => setPassword(password)}
+                  secureTextEntry={pwVisibility}
+              />
+              <Pressable onPress={handlePwVisibility}>
+                <Ionicons name={rightIcon == 'eye' ? 'eye' : 'eye-off'} color='black' size={15} paddingRight={10}/>
+              </Pressable>
+          </View>
+
+          <View style = {{ paddingTop: 15, paddingBottom: 15 }}>
+            <TouchableOpacity onPress={handleSignIn} style={styles.signInButton}>
+              <Text style={{fontFamily: 'spacemono-bold'}}>Sign In</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style = {{ paddingTop: 10, paddingBottom: 15 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
+              <Text style={{fontFamily: 'spacemono-bold', color: '#86C68C'}}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+      
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     );
 }
 
