@@ -23,8 +23,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export default { app, collection, addDoc, getDocs };
+//export default { app, collection, addDoc, getDocs };
 
 
-// export default { app, db, getFireStore, collection, addDoc, getDocs };
+export default { app, db, getFirestore, collection, addDoc, getDocs };
 // const analytics = getAnalytics(app);

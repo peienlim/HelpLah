@@ -9,7 +9,7 @@ export default function WeeklyScreen({navigation}) {
       />
     </SafeAreaView>
   );
-}; */
+}; 
 
 import React, { Component } from 'react';
 import { Alert, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
 });
-
+*/
 
 
 
@@ -127,3 +127,121 @@ const styles = StyleSheet.create({
   },
 
 }) */
+
+import React, { Component, ReactElement } from 'react';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
+import WeekView from "react-native-week-view";
+import MyEventComponent from '../components/weekly page components/myEventComponent';
+import CalendarStrip from 'react-native-calendar-strip';
+import WeekScroll from '../components/weekly page components/weekScroll';
+
+
+const myEvents = [
+  {
+    id: 1,
+    startDate: new Date(2023, 1, 20, 9),
+    endDate: new Date(2023, 1, 20, 11),
+    color: '#D3D3D3',
+    description: 'E1',
+    // ... more properties if needed,
+  },
+  {
+    id: 2,
+    startDate: new Date(2023, 1, 22, 10),
+    endDate: new Date(2023, 1, 22, 11, 30),
+    color: '#D3D3D3',
+    description: 'E2',
+    title: 'hi',
+  },
+  // more events...
+];
+
+
+class WeeklyScreen extends Component {
+  render() {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.contentContainer}>
+
+          <WeekScroll 
+            style={styles.exampleContainer}
+          />
+
+          <View style={styles.weekViewContainer}>
+            <WeekView
+              events={myEvents}
+              EventComponent={MyEventComponent}
+              selectedDate={new Date(2023, 1, 20, 12)}
+              numberOfDays={1}
+              pageStartAt={{ weekday: 1 }}
+              headerStyle={styles.weekViewHeader}
+              headerTextStyle={styles.headerText}
+              hourTextStyle={styles.hourText}
+              eventContainerStyle={styles.eventContainer}
+              gridColumnStyle={styles.gridColumn}
+              gridRowStyle={styles.gridRow}
+              hourContainerStyle={styles.hourContainer}
+              formatDateHeader='ddd D'
+              allowScrollByDay={true}
+              hoursInDisplay={6}
+              timeStep={30}
+              timesColumnWidth={0.16}
+            />
+          </View>
+
+        </View>
+      </SafeAreaView>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  exampleContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    height: 100
+  },
+  calendarStrip: {
+    flex: 1,
+    paddingTop: 20,
+    paddingBottom: 10,
+    fontFamily: 'spacemono'
+  },
+  weekViewContainer: {
+    flex: 1,
+  },
+  weekViewHeader: {
+    height: 100,
+  },
+  headerText: {
+    fontFamily: 'spacemono',
+    fontSize: 10,
+  },
+  hourText: {
+    fontFamily: 'spacemono',
+  },
+  eventContainer: {
+    borderRadius: 10,
+
+  },
+  gridColumn: {
+    
+  }, 
+  gridRow: {
+    
+  }, 
+  hourContainer: {
+
+  },
+})
+
+export default WeeklyScreen;
