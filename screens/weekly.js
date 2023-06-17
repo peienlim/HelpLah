@@ -1,138 +1,7 @@
-/* import React from 'react';
-import { StyleSheet, Text, SafeAreaView } from 'react-native';
-import AgendaScreen from '../components/agenda';
-
-export default function WeeklyScreen({navigation}) { 
-  return (
-    <SafeAreaView>
-      <AgendaScreen
-      />
-    </SafeAreaView>
-  );
-}; 
-
 import React, { Component } from 'react';
-import { Alert, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Agenda } from 'react-native-calendars';
-
-export default class WeeklyScreen extends Component {
-  state = {
-    items: undefined,
-  };
-
-  render() {
-    return (
-      <Agenda
-        items={this.state.items}
-        loadItemsForMonth={this.loadItems}
-        selected={'2023-05-16'}
-        renderItem={this.renderItem}
-        renderEmptyDate={this.renderEmptyDate}
-        rowHasChanged={this.rowHasChanged}
-        showClosingKnob={true}
-      />
-    );
-  }
-
-  loadItems = (day) => {
-    const items = this.state.items || {};
-
-    setTimeout(() => {
-      for (let i = -15; i < 85; i++) {
-        const time = day.timestamp + i * 24 * 60 * 60 * 1000;
-        const strTime = this.timeToString(time);
-
-        if (!items[strTime]) {
-          items[strTime] = [];
-
-          const numItems = Math.floor(Math.random() * 3 + 1);
-          for (let j = 0; j < numItems; j++) {
-            items[strTime].push({
-              name: 'Item for ' + strTime + ' #' + j,
-              height: Math.max(50, Math.floor(Math.random() * 150)),
-              day: strTime,
-            });
-          }
-        }
-      }
-
-      const newItems = {};
-      Object.keys(items).forEach((key) => {
-        newItems[key] = items[key];
-      });
-      this.setState({
-        items: newItems,
-      });
-    }, 1000);
-  };
-
-  renderItem = (reservation, isFirst) => {
-    const fontSize = isFirst ? 16 : 14;
-    const color = isFirst ? 'black' : '#43515c';
-    const fontFamily = "spacemono-bold"
-
-    return (
-      <TouchableOpacity
-        style={[styles.item, { height: reservation.height }]}
-        onPress={() => Alert.alert(reservation.name)}
-      >
-        <Text style={{ fontSize, color, fontFamily}}>{reservation.name}</Text>
-      </TouchableOpacity>
-    );
-  };
-
-  renderEmptyDate = () => {
-    return (
-      <View style={styles.emptyDate}>
-        <Text>This is empty date!</Text>
-      </View>
-    );
-  };
-
-  rowHasChanged = (r1, r2) => {
-    return r1.name !== r2.name;
-  };
-
-  timeToString(time) {
-    const date = new Date(time);
-    return date.toISOString().split('T')[0];
-  }
-}
-
-const styles = StyleSheet.create({
-  item: {
-    backgroundColor: 'white',
-    flex: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginRight: 10,
-    marginTop: 17,
-  },
-  emptyDate: {
-    height: 15,
-    flex: 1,
-    paddingTop: 30,
-  },
-});
-*/
-
-
-
-/* const styles = StyleSheet.create({
-  background: {
-    backgroundColor: 'white', 
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center',
-  },
-
-}) */
-
-import React, { Component, ReactElement } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import WeekView from "react-native-week-view";
 import MyEventComponent from '../components/weekly page components/myEventComponent';
-import CalendarStrip from 'react-native-calendar-strip';
 import WeekScroll from '../components/weekly page components/weekScroll';
 
 
@@ -147,8 +16,8 @@ const myEvents = [
   },
   {
     id: 2,
-    startDate: new Date(2023, 1, 22, 10),
-    endDate: new Date(2023, 1, 22, 11, 30),
+    startDate: new Date(2023, 5, 17, 10),
+    endDate: new Date(2023, 5, 17, 11, 30),
     color: '#D3D3D3',
     description: 'E2',
     title: 'hi',
@@ -158,20 +27,52 @@ const myEvents = [
 
 
 class WeeklyScreen extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = { 
+      selectedDate: new Date(),
+    }
+
+    this.calendarStripRef = React.createRef();
+    this.weekViewRef = React.createRef();
+  };
+
+  handleDateSelected = (date) => {
+    this.weekViewRef.current.goToDate(date, { animated: true });
+    this.weekViewRef.current.scrollToTime(7.8*60, { animated: true });
+  };
+
+  handleSwipeNext = (date) => {
+    this.setState({ selectedDate: date }); 
+    this.weekViewRef.current.scrollToTime(7.8*60, { animated: true });
+  };
+  
+  handleSwipePrev = (date) => {
+    this.setState({ selectedDate: date }); 
+    this.weekViewRef.current.scrollToTime(7.8*60, { animated: true });
+  }
+
   render() {
+    const { selectedDate } = this.state;
+
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.contentContainer}>
 
           <WeekScroll 
+            forwardedRef={this.calendarStripRef}
             style={styles.exampleContainer}
+            onDateSelected={this.handleDateSelected}
+            selectedDate={selectedDate}
           />
 
           <View style={styles.weekViewContainer}>
             <WeekView
               events={myEvents}
               EventComponent={MyEventComponent}
-              selectedDate={new Date(2023, 1, 20, 12)}
+              selectedDate={selectedDate}
               numberOfDays={1}
               pageStartAt={{ weekday: 1 }}
               headerStyle={styles.weekViewHeader}
@@ -186,6 +87,10 @@ class WeeklyScreen extends Component {
               hoursInDisplay={6}
               timeStep={30}
               timesColumnWidth={0.16}
+              ref={this.weekViewRef}
+              onSwipeNext={this.handleSwipeNext}
+              onSwipePrev={this.handleSwipePrev}
+              startHour={7.8}
             />
           </View>
 
@@ -194,6 +99,7 @@ class WeeklyScreen extends Component {
     );
   }
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -220,7 +126,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   weekViewHeader: {
-    height: 100,
+    height: 90,
   },
   headerText: {
     fontFamily: 'spacemono',
