@@ -1,17 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
-import { color } from 'react-native-reanimated';
-import { withSafeAreaInsets } from 'react-native-safe-area-context';
+/* import { color } from 'react-native-reanimated';
+import { withSafeAreaInsets } from 'react-native-safe-area-context'; */
 
+import { db } from '../firebaseConfig2';
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+
+import { getAuth } from "firebase/auth";
 
 export default function HomeScreen({navigation}) {
+
+  const auth = getAuth();
+  const userEmail = auth.currentUser.email;
+
+  const [userData, setUserData] = useState({});
+
+  const getUserInfo = async () => {
+    const q = query(collection(db, "users"), where("email", "==", userEmail));
+    const querySnapShot = await getDocs(q);
+    querySnapShot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+      setUserData({
+        ...doc.data(),
+        id: doc.id,
+      })
+    });
+    console.log(userData);
+  }
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
 
   return (
       <SafeAreaView style={styles.background}>
 
         <View style={styles.top}> 
-          <Text style={{fontFamily: 'spacemono-bold'}}>Home Page</Text>
-          <Text style={styles.hello}>Hello Lily!</Text>
+          <Text style={{fontFamily: 'spacemono-bold'}}>Home Page</Text> 
+          <Text style={{fontFamily: 'spacemono-bold'}}>Hello {userData.name} !</Text>
           <Text style={styles.date}>Mon, 12 June 2023</Text>
         </View>
 
@@ -85,3 +111,131 @@ const styles = StyleSheet.create({
 
 
 })
+
+/* const auth = getAuth();
+const email = auth.currentUser.email;
+const userDocRef = doc(db, "users", email);
+const [userData, setUserData] = useState({});
+
+useEffect(() => {
+  const getUser = async () => {
+    const snap = await getDoc(userDocRef);
+    setUserData({email, ...snap.data()});
+  }
+  getUser()
+}, []); */
+
+ /* const auth = getAuth();
+
+  const user = auth.currentUser;
+  const [userEmail, setUserEmail] = useState("");
+
+  const [userInfo, setUserInfo] = useState({});
+  //const {email, name} = userInfo;
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        console.log("User name not found!");
+      }
+    };
+  }, [user]);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const docRef = doc(db, 'users', userEmail);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setUserInfo(data);
+        console.log("Document data", data);
+      } else {
+        console.log("No such document!")
+      }
+    };
+  }, [userEmail]);
+
+  if (!userInfo) {
+    return <Text>Loading ...</Text>;
+  }
+ */
+
+/*   const auth = getAuth();
+  const user = auth.currentUser;
+  const [userEmail, setUserEmail] = useState("");
+
+  // get the user's email address
+ 
+  if (user) {
+    //userEmail = user.email;
+    setUserEmail(user.email);
+  } else {
+    console.log("User name not found!")
+  }
+
+  const [userInfo, setUserInfo] = useState({
+    email: "",
+    name: "",
+  });
+
+  const getUserInfo = async () => {
+    const q = query(collection(db, "users"), where("email", "==", userEmail));
+    const querySnapShot = await getDocs(q);
+    querySnapShot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+      setUserInfo({
+        ...doc.data(),
+        id: doc.id,
+      })
+    });
+    console.log(userInfo);
+  }
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
+
+  if (userInfo === null) {
+    return {}; // Return null or loading indicator while waiting for data
+  }  */
+/* 
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const [userEmail, setUserEmail] = useState("");
+  const [userInfo, setUserInfo] = useState({});
+  const { email, name } = userInfo;
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        console.log("User name not found!");
+      }
+    };
+
+    getUserEmail();
+  }, [user]);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      if (userEmail) {
+        const q = query(collection(db, "users"), where("email", "==", userEmail));
+        const querySnapShot = await getDocs(q);
+        querySnapShot.forEach((doc) => {
+          console.log(doc.id, " => ", doc.data());
+          const data = doc.data();
+          setUserInfo({data});
+        });
+        console.log(userInfo);
+      }
+    };
+
+    getUserInfo();
+  }, [userEmail]);
+
+  if (userInfo === {email: "", name: "",}) {
+    return {email: "", name: "",}; // Return null or a loading indicator while waiting for data
+  } */

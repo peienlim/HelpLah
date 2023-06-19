@@ -1,17 +1,61 @@
-/* import React from 'react';
-import { StyleSheet, Text, SafeAreaView } from 'react-native';
-import AgendaScreen from '../components/agenda';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import CalendarStrip from 'react-native-calendar-strip';
 
-export default function WeeklyScreen({navigation}) { 
+/* import {useFonts} from "expo-font";
+import * as SplashScreen from 'expo-splash-screen';
+import {useEffect} from 'react'; */
+
+export default function WeeklyScreen() {
+
+  /* const [fontsLoaded] = useFonts({
+    'spacemono': require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'spacemono-bold': require('../assets/fonts/SpaceMono-Bold.ttf'),
+  });
+
+  useEffect(() => {
+    async function prepare() {
+      await SplashScreen.preventAutoHideAsync();
+    }
+    prepare();
+  }, []);
+
+  if (!fontsLoaded) {
+    return undefined;
+  } else {
+    SplashScreen.hideAsync();
+  }
+ */
   return (
     <SafeAreaView>
-      <AgendaScreen
+      <CalendarStrip
+        scrollable
+        style={{height:200, paddingTop: 20, paddingBottom: 10}}
+        calendarColor={'#3343CE'}
+        calendarHeaderStyle={{color: 'white', fontSize: 20, fontFamily: 'spacemono-bold',}}
+        dateNumberStyle={{color: 'white', fontFamily:'spacemono-bold',}}
+        dateNameStyle={{color: 'white'}}
+        iconContainer={{flex: 0.1}}
       />
     </SafeAreaView>
   );
-}; */
+}
 
-import React, { Component } from 'react';
+const styles = StyleSheet.create({
+  container: { 
+    flex: 1 
+  },
+  background: {
+    backgroundColor: 'white', 
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+});
+
+
+
+
+/* import React, { Component } from 'react';
 import { Alert, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 
@@ -113,17 +157,4 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 30,
   },
-});
-
-
-
-
-/* const styles = StyleSheet.create({
-  background: {
-    backgroundColor: 'white', 
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center',
-  },
-
-}) */
+}); */

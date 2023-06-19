@@ -12,7 +12,7 @@ export default function LoginScreen({ navigation }) {
     const { pwVisibility, rightIcon, handlePwVisibility } =
       useTogglePwVisibility();
     const [password, setPassword] = useState('');
-    
+
     async function handleSignIn() {
       if (email === '' || password === '') {
         Alert.alert("Both email and password are required!");
