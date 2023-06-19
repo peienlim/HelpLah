@@ -1,66 +1,70 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
-import { color } from 'react-native-reanimated';
-import { withSafeAreaInsets } from 'react-native-safe-area-context';
 
-import DailyView from '../components/home page components/dailyView';
-import Event from '../components/home page components/Event';
-import Class from '../components/home page components/Class';
+import { db } from '../firebaseConfigDB';
+import { collection, query, where, getDocs } from "firebase/firestore";
 
+import { getAuth } from "firebase/auth";
 
 export default function HomeScreen({navigation}) {
+
+  // Retrieve's user's email from Firebase authentication
+  const auth = getAuth();
+  const userEmail = auth.currentUser.email;
+
+  const [userData, setUserData] = useState({});
+
+  // Function to retrieve user's name from firestore using their unique email address
+  const getUserInfo = async () => {
+      const q = query(collection(db, "users"), where("email", "==", userEmail));
+      const querySnapShot = await getDocs(q);
+      querySnapShot.forEach((doc) => {
+        setUserData({
+          ...doc.data(),
+          id: doc.id,
+        })
+        console.log(doc.id, " => ", doc.data());
+      });
+      console.log(userData);
+  };
+
+  // handles side effect from changing the state of object
+  useEffect(() => {
+    getUserInfo();
+  }, []);
 
   return (
       <SafeAreaView style={styles.background}>
 
         <View style={styles.top}> 
-          <Text style={styles.hello}>Hello Lily!</Text>
+          <Text style={{fontFamily: 'spacemono-bold'}}>Home Page</Text> 
+          <Text style={{fontFamily: 'spacemono-bold'}}>Hello {userData.name} !</Text>
           <Text style={styles.date}>Mon, 12 June 2023</Text>
         </View>
 
         <View style={styles.todayce}>
-
-          <View style={{flex:1}}>
-            <View>
-              <Text style={styles.header}>Today's Classes</Text>
-              <ScrollView>
-                <Class/>
-                <Class/>
-                <Class/>
-              </ScrollView>
-            </View>
-          </View>
-
-          <View style={{flex:1}}>
-            <View>
-              <Text style={styles.header}>Today's Events</Text>
-              <ScrollView>
-                <Event/>
-                <Event/>
-                <Event/>
-                <Event/>
-              </ScrollView>
-            </View>
-          </View>
-          
+          <ScrollView>
+            <Text style={{justifyContent:"flex-start"}}>classes</Text>
+          </ScrollView>
+          <ScrollView>
+            <Text style={{justifyContent:"flex-end"}}>today's events:</Text>
+          </ScrollView>
         </View>
 
-
-        <DailyView/>
+        <View style={styles.dailyview}>
+          <Text>daily view</Text>
+          <ScrollView>
+            <Text>contents for scrolling</Text>
+          </ScrollView>
+        </View>
 
         <View style={styles.phc}>
           <View style={{flex:1}}>
-            <Text style={styles.header}>Productive Hours:</Text>
-            <View style={styles.phccontainer}>
-              <Text style={styles.phctext}>3 hours!</Text>
-            </View>
+            <Text style={{justifyContent:"flex-start"}}>productive hours:</Text>
           </View>
 
           <View style={{flex:1}}>
-            <Text style={styles.header}>Completed:</Text>
-            <View style={styles.phccontainer}>
-              <Text style={styles.phctext}>3/5!</Text>
-            </View>
+            <Text style={{justifyContent:"flex-end"}}>completed:</Text>
           </View>
         </View>
 
@@ -74,49 +78,165 @@ const styles = StyleSheet.create({
     flex: 1, 
     paddingTop: 40,
     paddingHorizontal: 20,
+    // justifyContent: 'flex-start'
+    // alignItems: 'center', 
+    // justifyContent: 'center',
   },
   top: {
     flex: 1,
-    paddingTop: 20,
+    // backgroundColor: 'red'
   },
   hello: {
-    fontFamily: 'spacemono-bold',
-    fontSize: 25,
+    // flex: 1
   },
   date: {
-    fontFamily:"spacemono",
-    fontSize: 12
+    // flex: 1
   },
-  
   todayce: {
     flexDirection:"row",
     flex: 2,
+    // backgroundColor:"white"
   },
-
-  phc: {
-    paddingTop: 15,
-    flexDirection:"row",
-    flex: 1,
+  dvheader: {
+    flex: 1
   },
-  phccontainer: {
-    flex: 0.8,
-    backgroundColor: "#E5E5E5",
-    width: "78%",
-    borderRadius: 10,
-    flexDirection: "column",
-    alignContent: "center",
-    justifyContent: "center",
-    paddingLeft: 6,
-  },
-  phctext: {
-    fontFamily:"spacemono",
-    fontSize: 12
-  },
-  header: {
-    fontFamily:"spacemono-bold", 
-    fontSize:13.5,
-
+  dailyview: {
+    flex: 5,
+    // backgroundColor:"blue"
   }, 
+  phc: {
+    flexDirection:"row",
+    flex: 2,
+    // backgroundColor:'green'
+  }
 
 
 })
+
+/* const auth = getAuth();
+const email = auth.currentUser.email;
+const userDocRef = doc(db, "users", email);
+const [userData, setUserData] = useState({});
+
+useEffect(() => {
+  const getUser = async () => {
+    const snap = await getDoc(userDocRef);
+    setUserData({email, ...snap.data()});
+  }
+  getUser()
+}, []); */
+
+ /* const auth = getAuth();
+
+  const user = auth.currentUser;
+  const [userEmail, setUserEmail] = useState("");
+
+  const [userInfo, setUserInfo] = useState({});
+  //const {email, name} = userInfo;
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        console.log("User name not found!");
+      }
+    };
+  }, [user]);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const docRef = doc(db, 'users', userEmail);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setUserInfo(data);
+        console.log("Document data", data);
+      } else {
+        console.log("No such document!")
+      }
+    };
+  }, [userEmail]);
+
+  if (!userInfo) {
+    return <Text>Loading ...</Text>;
+  }
+ */
+
+/*   const auth = getAuth();
+  const user = auth.currentUser;
+  const [userEmail, setUserEmail] = useState("");
+
+  // get the user's email address
+ 
+  if (user) {
+    //userEmail = user.email;
+    setUserEmail(user.email);
+  } else {
+    console.log("User name not found!")
+  }
+
+  const [userInfo, setUserInfo] = useState({
+    email: "",
+    name: "",
+  });
+
+  const getUserInfo = async () => {
+    const q = query(collection(db, "users"), where("email", "==", userEmail));
+    const querySnapShot = await getDocs(q);
+    querySnapShot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+      setUserInfo({
+        ...doc.data(),
+        id: doc.id,
+      })
+    });
+    console.log(userInfo);
+  }
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
+
+  if (userInfo === null) {
+    return {}; // Return null or loading indicator while waiting for data
+  }  */
+/* 
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const [userEmail, setUserEmail] = useState("");
+  const [userInfo, setUserInfo] = useState({});
+  const { email, name } = userInfo;
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        console.log("User name not found!");
+      }
+    };
+
+    getUserEmail();
+  }, [user]);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      if (userEmail) {
+        const q = query(collection(db, "users"), where("email", "==", userEmail));
+        const querySnapShot = await getDocs(q);
+        querySnapShot.forEach((doc) => {
+          console.log(doc.id, " => ", doc.data());
+          const data = doc.data();
+          setUserInfo({data});
+        });
+        console.log(userInfo);
+      }
+    };
+
+    getUserInfo();
+  }, [userEmail]);
+
+  if (userInfo === {email: "", name: "",}) {
+    return {email: "", name: "",}; // Return null or a loading indicator while waiting for data
+  } */

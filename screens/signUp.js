@@ -5,8 +5,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTogglePwVisibility } from '../hook/useTogglePwVisibility';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
-export default function SignUpScreen({ navigation }) {
+import { db } from '../firebaseConfigDB';
+import { doc, setDoc } from 'firebase/firestore';
 
+export default function SignUpScreen({ navigation }) {
+    
+    const [name, setName] = useState('');
     const[email, setEmail] = useState('');
     const { pwVisibility, rightIcon, handlePwVisibility } =
       useTogglePwVisibility();
@@ -15,6 +19,7 @@ export default function SignUpScreen({ navigation }) {
     
     const auth = getAuth();
 
+    // Firebase authentication & add user data to firestore
     async function handleSignUp() {
         if (password != confirmPassword) {
             Alert.alert("Confirmed password does not match");
@@ -28,9 +33,22 @@ export default function SignUpScreen({ navigation }) {
 
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            await navigation.goBack();
+            await navigation.navigate("LoginScreen");
+            await addUser();
         } catch (error) {
             Alert.alert("Check the validity of your email/Password length!");
+        }
+    }
+
+    async function addUser() {
+        try {
+            await setDoc(doc(db, "users", email),{
+                name: name,
+                email: email,
+            });
+            console.log("New Document for user created");
+        } catch(error) {
+            console.log(error);
         }
     }
 
@@ -41,6 +59,16 @@ export default function SignUpScreen({ navigation }) {
         <SafeAreaView style={styles.background}>
             
             <Text style={{fontFamily:'spacemono-bold', fontSize: 25, paddingBottom: 35, paddingRight: 200}}>Sign Up</Text>
+
+            <View style={styles.inputButton}> 
+                <Ionicons name='happy-outline' color='black' size={15} paddingRight={10}/>
+                <TextInput
+                    value = {name} 
+                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    placeholder = "Name..."
+                    onChangeText = {(name) => setName(name)}
+                />
+            </View>
 
             <View style={styles.inputButton}> 
                 <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
