@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../screens/login';
 import SignUpScreen from '../screens/signUp';
 import TabStack from './bottomTabNavigation';
+import AddEvent from '../screens/addEvent';
 
 const Stack = createStackNavigator();
 
@@ -13,6 +14,7 @@ export default function MainStack() {
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
       <Stack.Screen name="TabStack" component={TabStack} />
+      <Stack.Screen name = "AddEvent" component={AddEvent} />
     </Stack.Navigator>
    
     );

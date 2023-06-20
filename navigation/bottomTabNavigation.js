@@ -2,13 +2,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import DrawerStack from './drawerNavigation';
 import WeeklyScreen from '../screens/weekly';
-import TaskAdderScreen from '../screens/taskAdder';
 import FocusScreen from '../screens/statistics';
 import CommunityScreen from '../screens/community';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { View } from 'react-native';
+
 
 const Tab = createBottomTabNavigator();
+const NewPlaceHolder = () => <View style= {{flex: 1, backgroundColor:"pink"}}></View>
 
 export default function TabStack() {
   return (
@@ -24,9 +26,10 @@ export default function TabStack() {
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='calendar-outline' color={color} size={size} />),}}
       />
       <Tab.Screen 
-          name="TaskAdderScreen" 
-          component = {TaskAdderScreen} 
+          name="Add" 
+          component = {NewPlaceHolder} 
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='add-circle-outline' color={color} size={size} />),}}
+          listeners={({navigation}) => ({tabPress: event => event.preventDefault() & navigation.navigate("AddEvent") })}
       />
       <Tab.Screen 
           name="FocusScreen" 
