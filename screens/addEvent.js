@@ -4,8 +4,11 @@ import React, {useState} from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 import {SelectList} from 'react-native-dropdown-select-list'
+
+import { getAuth } from 'firebase/auth';
+import { db } from '../firebaseConfigDB';
+import { doc, setDoc } from 'firebase/firestore';
 
 
 export default function AddEvent({navigation}) {
@@ -20,7 +23,7 @@ export default function AddEvent({navigation}) {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
 
-    const [selected, setSelected] = useState('');
+    const [selectedColour, setSelectedColour] = useState('');
     const colours = [
       {key: '1', value: 'red'},
       {key: '2', value: 'orange'},
@@ -30,7 +33,27 @@ export default function AddEvent({navigation}) {
       {key: '6', value: 'purple'},
       {key: '7', value: 'pink'},
       {key: '8', value: 'grey'},
-    ]
+    ];
+
+    // Retrieve User's email from Firebase authentication
+    const auth = getAuth();
+    const userEmail = auth.currentUser.email;
+
+    // Add Event data to Firestore
+    async function handleAddEvent() {
+      try {
+        await setDoc(doc(db, "events", userEmail), {
+          id: userEmail,
+          description: descr,
+          startDate: date,
+          endDate: endDate,
+          colour: selectedColour,
+        });
+        await navigation.goBack();
+      } catch(error) {
+        console.log(error);
+      }
+    }
 
     // Set the Start Date 
     const handleSetDate = (event, selectedDate) => {
@@ -83,7 +106,7 @@ export default function AddEvent({navigation}) {
               <TextInput
                 value={descr}
                 style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
-                placeholder = "Task description..."
+                placeholder = "Event/Task description..."
                 onChangeText = {(descr) => setDescr(descr)}
               />
             </View>
@@ -132,20 +155,20 @@ export default function AddEvent({navigation}) {
 
             <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Colour...</Text>
             <SelectList
-              setSelected={(val) => setSelected(val)}
+              setSelected={(val) => setSelectedColour(val)}
               data = {colours}
               save = 'value'
               boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
               searchPlaceholder='Select Colour...'
               searchicon = {<Ionicons name="color-palette" color='black' paddingRight={5} size={15}/>}
               defaultOption={{key: '8', value: 'grey'}}
-              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selected}}
+              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selectedColour.toString()}}
               label = "Colour..."
               dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
             />
 
             <View style={{paddingTop: 50}}>
-              <TouchableOpacity style={styles.createButton} >
+              <TouchableOpacity style={styles.createButton} onPress={handleAddEvent}>
                 <Text style={{fontFamily: 'spacemono-bold', fontSize:13}}>Add</Text>
               </TouchableOpacity>
             </View>
