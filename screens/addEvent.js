@@ -5,8 +5,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import {SelectList} from 'react-native-dropdown-select-list'
+
+
 export default function AddEvent({navigation}) {
+    // boolean value to set modal visibility
     const [modalVisible, setModalVisible] = useState(true);
+
+    // Input fields for a Task Event
     const [descr, setDescr] = useState('');
     const [date, setDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
@@ -14,6 +20,19 @@ export default function AddEvent({navigation}) {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
 
+    const [selected, setSelected] = useState('');
+    const colours = [
+      {key: '1', value: 'red'},
+      {key: '2', value: 'orange'},
+      {key: '3', value: 'yellow'},
+      {key: '4', value: 'green'},
+      {key: '5', value: 'blue'},
+      {key: '6', value: 'purple'},
+      {key: '7', value: 'pink'},
+      {key: '8', value: 'grey'},
+    ]
+
+    // Set the Start Date 
     const handleSetDate = (event, selectedDate) => {
       const currentDate = selectedDate || date;
   
@@ -21,6 +40,7 @@ export default function AddEvent({navigation}) {
       setDate(currentDate);
     };
 
+    // Set the End Date
     const handleSetEndDate = (event, selectedDate) => {
       const currDate = selectedDate || endDate;
 
@@ -28,16 +48,19 @@ export default function AddEvent({navigation}) {
       setEndDate(currDate);
     }
 
+    // Shows Picker, Sets Mode and Sets dateType
     const showPicker = (pickerMode, dateType) => {
       setShow(true);
       setMode(pickerMode);
       setDateType(dateType);
     };
   
+    // Shows Date Picker
     const showDatePicker = (dateType) => {
       showPicker('date', dateType);
     };
   
+    // Shows Time Picker
     const showTimePicker = (dateType) => {
       showPicker('time', dateType);
     };  
@@ -59,7 +82,7 @@ export default function AddEvent({navigation}) {
               <Ionicons name="happy-outline" color='black' size={15} paddingRight={10} paddingTop={2}/>
               <TextInput
                 value={descr}
-                style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 12}}
+                style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                 placeholder = "Task description..."
                 onChangeText = {(descr) => setDescr(descr)}
               />
@@ -67,33 +90,33 @@ export default function AddEvent({navigation}) {
 
             <View style={styles.inputButton}>
               <Ionicons name="calendar" color='black' size={15} paddingRight={10} paddingTop={2}/>
-              <Text>Start Date: </Text>
+              <Text style = {styles.textBold}>Start Date: </Text>
               <TouchableOpacity onPress={() => showDatePicker('start')} activeOpacity={1.5}>
-                <Text>{date.toLocaleDateString()}</Text>
+                <Text style = {styles.text}>{date.toLocaleDateString()}</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputButton}>
               <Ionicons name="alarm" color='black' size={15} paddingRight={10} paddingTop={2}/>
-              <Text>Start Time: </Text>
+              <Text style = {styles.textBold}>Start Time: </Text>
               <TouchableOpacity onPress={() => showTimePicker('start')} activeOpacity={1.5}>
-                <Text>{date.getHours() < 10 ? "0" + date.getHours() : date.getHours()}:{date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()}</Text>
+                <Text style = {styles.text}>{date.getHours() < 10 ? "0" + date.getHours() : date.getHours()}:{date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()}</Text>
               </TouchableOpacity>
             </View>
             
             <View style={styles.inputButton}>
               <Ionicons name="calendar" color='black' size={15} paddingRight={10} paddingTop={2}/>
-              <Text>End Date: </Text>
+              <Text style = {styles.textBold}>End Date: </Text>
               <TouchableOpacity onPress={() => showDatePicker('end')} activeOpacity={1.5}>
-                <Text>{endDate.toLocaleDateString()}</Text>
+                <Text style = {styles.text}>{endDate.toLocaleDateString()}</Text>
               </TouchableOpacity>
             </View>
             
             <View style={styles.inputButton}>
               <Ionicons name="alarm" color='black' size={15} paddingRight={10} paddingTop={2}/>
-              <Text>End Time: </Text>
+              <Text style = {styles.textBold}>End Time: </Text>
               <TouchableOpacity onPress={() => showTimePicker('end')} activeOpacity={1.5}>
-                <Text>{endDate.getHours() < 10 ? "0" + endDate.getHours() : endDate.getHours()}:{endDate.getMinutes() < 10 ? "0" + endDate.getMinutes() : endDate.getMinutes()}</Text>
+                <Text style = {styles.text}>{endDate.getHours() < 10 ? "0" + endDate.getHours() : endDate.getHours()}:{endDate.getMinutes() < 10 ? "0" + endDate.getMinutes() : endDate.getMinutes()}</Text>
               </TouchableOpacity>
             </View>
 
@@ -107,13 +130,25 @@ export default function AddEvent({navigation}) {
               />
             )}
 
+            <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Colour...</Text>
+            <SelectList
+              setSelected={(val) => setSelected(val)}
+              data = {colours}
+              save = 'value'
+              boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
+              searchPlaceholder='Select Colour...'
+              searchicon = {<Ionicons name="color-palette" color='black' paddingRight={5} size={15}/>}
+              defaultOption={{key: '8', value: 'grey'}}
+              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selected}}
+              label = "Colour..."
+              dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
+            />
+
             <View style={{paddingTop: 50}}>
               <TouchableOpacity style={styles.createButton} >
-                <Text style={{fontFamily: 'spacemono-bold', fontSize:15}}>Add</Text>
+                <Text style={{fontFamily: 'spacemono-bold', fontSize:13}}>Add</Text>
               </TouchableOpacity>
             </View>
-
-
 
           </View>
           
@@ -130,15 +165,18 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
     },
     text: {
-      fontFamily: 'spacemono', 
-      flexGrow: 1, 
-      fontSize: 12,
+      fontFamily: 'spacemono',  
+      fontSize: 13,
+    },
+    textBold: {
+      fontFamily: 'spacemono-bold',  
+      fontSize: 13,
     },
     createButton: {
       backgroundColor: '#9AC791',
       borderColor: '#9AC791',
       height: 35,
-      width: 200,
+      width: 150,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: 10,

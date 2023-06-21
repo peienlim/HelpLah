@@ -64,7 +64,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='happy-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {name} 
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                     placeholder = "Name..."
                     onChangeText = {(name) => setName(name)}
                 />
@@ -74,7 +74,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {email} 
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                     placeholder = "Email..."
                     onChangeText = {(email) => setEmail(email)}
                 />
@@ -84,7 +84,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='key-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {password} 
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                     placeholder = "Password..."
                     onChangeText = {(password) => setPassword(password)}
                     secureTextEntry = {pwVisibility}
@@ -98,7 +98,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='lock-closed-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {confirmPassword} 
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                     placeholder = "Confirm Password..."
                     onChangeText = {(confirmPassword) => setConfirmPassword(confirmPassword)}
                     secureTextEntry={pwVisibility}
@@ -110,7 +110,7 @@ export default function SignUpScreen({ navigation }) {
 
             <View style = {{paddingTop: 50}}>
                 <TouchableOpacity style={styles.signUpButton} onPress = {handleSignUp}>
-                    <Text style={{fontFamily: 'spacemono-bold'}}>Sign Up</Text>
+                    <Text style={{fontFamily: 'spacemono-bold', fontSize: 13}}>Sign Up</Text>
                 </TouchableOpacity>
             </View>
 
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#9AC791',
         borderColor: '#9AC791',
         height: 35,
-        width: 200,
+        width: 175,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,
