@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
 
+
+import DailyView from '../components/home page components/dailyView';
+import Event from '../components/home page components/Event';
+import Class from '../components/home page components/Class';
+
+
 import { db } from '../firebaseConfigDB';
 import { collection, query, where, getDocs } from "firebase/firestore";
 
@@ -37,33 +43,35 @@ export default function HomeScreen({navigation}) {
       <SafeAreaView style={styles.background}>
 
         <View style={styles.top}> 
-          <Text style={{fontFamily: 'spacemono-bold', fontSize: 25}}>Hello {userData.name ? userData.name : 'Loading...'}!</Text>
-          <Text style={{fontFamily: 'spacemono-bold'}}>Mon, 12 June 2023</Text>
+          <Text style={styles.hello}>Hello {userData.name ? userData.name : 'Loading...'}!</Text>
+          <Text style={styles.date}>Mon, 12 June 2023</Text>
         </View>
 
         <View style={styles.todayce}>
+          <Text style={styles.header}>Today's Events</Text>
           <ScrollView>
-            <Text style={{justifyContent:"flex-start"}}>classes</Text>
+            <Event/>
+            <Event/>
+            <Event/>
+            <Event/>
           </ScrollView>
-          <ScrollView>
-            <Text style={{justifyContent:"flex-end"}}>today's events:</Text>
-          </ScrollView>
-        </View>
+        </View> 
 
-        <View style={styles.dailyview}>
-          <Text>daily view</Text>
-          <ScrollView>
-            <Text>contents for scrolling</Text>
-          </ScrollView>
-        </View>
+        <DailyView/>
 
         <View style={styles.phc}>
           <View style={{flex:1}}>
-            <Text style={{justifyContent:"flex-start"}}>productive hours:</Text>
+            <Text style={styles.header}>Productive Hours:</Text>
+            <View style={styles.phccontainer}>
+              <Text style={styles.phctext}>3 hours!</Text>
+            </View>
           </View>
 
           <View style={{flex:1}}>
-            <Text style={{justifyContent:"flex-end"}}>completed:</Text>
+            <Text style={styles.header}>Completed:</Text>
+            <View style={styles.phccontainer}>
+              <Text style={styles.phctext}>3/5!</Text>
+            </View>
           </View>
         </View>
 
@@ -73,41 +81,49 @@ export default function HomeScreen({navigation}) {
 
 const styles = StyleSheet.create({
   background: {
-    backgroundColor: 'white', 
+    marginLeft: 20,
     flex: 1, 
     paddingTop: 40,
     paddingHorizontal: 20,
-    // justifyContent: 'flex-start'
-    // alignItems: 'center', 
-    // justifyContent: 'center',
   },
   top: {
     flex: 1,
-    paddingTop: 10,
+    paddingTop: 20,
   },
   hello: {
-    // flex: 1
+    fontFamily: 'spacemono-bold',
+    fontSize: 25,
   },
   date: {
-    // flex: 1
+    fontFamily:"spacemono",
+    fontSize: 12
   },
   todayce: {
-    flexDirection:"row",
-    flex: 2,
-    // backgroundColor:"white"
+    flex: 1.7,
   },
-  dvheader: {
-    flex: 1
-  },
-  dailyview: {
-    flex: 5,
-    // backgroundColor:"blue"
-  }, 
   phc: {
+    paddingTop: 10,
     flexDirection:"row",
-    flex: 2,
-    // backgroundColor:'green'
-  }
+    flex: 1,
+  },
+  phccontainer: {
+    flex: 0.8,
+    backgroundColor: "#E5E5E5",
+    width: "78%",
+    borderRadius: 10,
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "center",
+    paddingLeft: 6,
+  },
+  phctext: {
+    fontFamily:"spacemono",
+    fontSize: 12
+  },
+  header: {
+    fontFamily:"spacemono-bold", 
+    fontSize:13.5,
+  }, 
 
 
 })
