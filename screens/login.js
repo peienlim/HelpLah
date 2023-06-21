@@ -42,7 +42,7 @@ export default function LoginScreen({ navigation }) {
               <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
               <TextInput
                   value = {email} 
-                  style = {{fontFamily: 'spacemono', flexGrow: 1, paddingRight: 20}}
+                  style = {{fontFamily: 'spacemono', flexGrow: 1, paddingRight: 20, fontSize: 13}}
                   placeholder = "Email..."
                   onChangeText = {(email) => setEmail(email)}
               />
@@ -53,7 +53,7 @@ export default function LoginScreen({ navigation }) {
               <Ionicons name='key-outline' color='black' size={15} paddingRight={10}/>
               <TextInput
                   value = {password}
-                  style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                  style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                   placeholder = "Password..."
                   onChangeText = {(password) => setPassword(password)}
                   secureTextEntry={pwVisibility}
@@ -65,13 +65,13 @@ export default function LoginScreen({ navigation }) {
 
           <View style = {{ paddingTop: 15, paddingBottom: 15 }}>
             <TouchableOpacity onPress={handleSignIn} style={styles.signInButton}>
-              <Text style={{fontFamily: 'spacemono-bold'}}>Sign In</Text>
+              <Text style={{fontFamily: 'spacemono-bold', fontSize: 13}}>Sign In</Text>
             </TouchableOpacity>
           </View>
 
           <View style = {{ paddingTop: 10, paddingBottom: 15 }}>
             <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
-              <Text style={{fontFamily: 'spacemono-bold', color: '#86C68C'}}>Sign Up</Text>
+              <Text style={{fontFamily: 'spacemono-bold', color: '#86C68C', fontSize: 13}}>Sign Up</Text>
             </TouchableOpacity>
           </View>
       
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#9AC791',
         borderColor: '#9AC791',
         height: 35,
-        width: 200,
+        width: 175,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,

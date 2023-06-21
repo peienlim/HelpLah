@@ -52,17 +52,17 @@ export default function ProfileScreen({navigation}) {
         
         <View style={styles.inputButton}> 
           <Ionicons name='happy-outline' color='black' size={15} paddingRight={10} paddingTop={3}/>
-          <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 15, color: 'grey'}} >{userData.name}</Text>         
+          <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13, color: 'grey'}} >{userData.name}</Text>         
         </View>
 
         <View style={styles.inputButton}> 
           <Ionicons name='mail-outline' color='black' size={15} paddingRight={10} paddingTop={3}/>
-          <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 15, color: 'grey'}} >{userEmail}</Text>
+          <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13, color: 'grey'}} >{userEmail}</Text>
         </View>
 
         <View style={{paddingTop: 50}}>
           <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton} >
-              <Text style={{fontFamily: 'spacemono-bold', fontSize:15}}>Sign Out</Text>
+              <Text style={{fontFamily: 'spacemono-bold', fontSize:13}}>Sign Out</Text>
           </TouchableOpacity>
         </View>
 
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#9AC791',
     borderColor: '#9AC791',
     height: 35,
-    width: 200,
+    width: 150,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
