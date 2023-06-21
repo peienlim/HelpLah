@@ -10,6 +10,8 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
 import { doc, setDoc } from 'firebase/firestore';
 
+import { generateUUID } from '../hook/generateUUID';
+
 
 export default function AddEvent({navigation}) {
     // boolean value to set modal visibility
@@ -39,11 +41,13 @@ export default function AddEvent({navigation}) {
     const auth = getAuth();
     const userEmail = auth.currentUser.email;
 
-    // Add Event data to Firestore
+    // adds Event Data into a subcollection of users data
     async function handleAddEvent() {
       try {
-        await setDoc(doc(db, "events", userEmail), {
-          id: userEmail,
+        const uniqueID = generateUUID(15);
+        const docRef = doc(db, 'users', userEmail, "events", uniqueID);
+        await setDoc(docRef, {
+          id: uniqueID,
           description: descr,
           startDate: date,
           endDate: endDate,
