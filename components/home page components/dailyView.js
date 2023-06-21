@@ -42,7 +42,7 @@ export default function DailyView() {
 
 const styles = StyleSheet.create({
     dailyview: {
-        paddingTop: 33,
+        paddingTop: 20,
         flex: 6.5,
         // backgroundColor:"blue"
     }, 
