@@ -23,7 +23,7 @@ export default function AddEvent({navigation}) {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
 
-    const [selectedColour, setSelectedColour] = useState('');
+    const [selectedColour, setSelectedColour] = useState("grey");
     const colours = [
       {key: '1', value: 'red'},
       {key: '2', value: 'orange'},
@@ -161,8 +161,8 @@ export default function AddEvent({navigation}) {
               boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
               searchPlaceholder='Select Colour...'
               searchicon = {<Ionicons name="color-palette" color='black' paddingRight={5} size={15}/>}
-              defaultOption={{key: '8', value: 'grey'}}
-              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selectedColour.toString()}}
+              //defaultOption={{key: '8', value: 'grey'}}
+              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selectedColour}}
               label = "Colour..."
               dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
             />
@@ -217,78 +217,3 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
     },
 });
-
-
-
-
-  // submit data
-    /* async function addEvent() {
-  
-       try { 
-          const docRef = await addDoc(collection(db, "events"), {
-            title: title,
-            type: type,
-            modType: modType,
-            duration: duration,
-        });
-        console.log("Document written with ID: ", docRef.id);
-      } catch(error) {
-        console.log(error);
-      }
-    } */
-
-/*     const [modalVisible, setModalVisible] = useState(true);
-    const [date, setDate] = useState(new Date());
-    const [mode, setMode] = useState('date');
-    const [show, setShow] = useState(false);
-
-    const onChange = (event, selectedDate) => {
-      const currentDate = selectedDate;
-      setShow(false);
-      setDate(currentDate);
-    };
-
-    const showMode = (currentMode) => {
-      if (Platform.OS === 'android') {
-        setShow(false);
-        // for iOS, add a button that closes the picker
-      }
-      setMode(currentMode);
-    };
-  
-    const showDatepicker = () => {
-      showMode('date');
-    };
-  
-    const showTimepicker = () => {
-      showMode('time');
-    };  
-
-    return (
-  
-        <Modal 
-          isVisible={modalVisible} 
-          animationType='fade' 
-          onRequestClose={()=> navigation.goBack()} 
-          statusBarTranslucent={false} 
-          transparent={true}>
-          
-          <Button onPress={showDatepicker} title="Show date picker!" />
-          <Button onPress={showTimepicker} title="Show time picker!" />
-          <Text>selected: {date.toLocaleString()}</Text>
-          {show && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode={mode}
-              is24Hour={true}
-              onChange={onChange}
-              display={Platform.OS === 'ios' ? 'spinner': 'dafault'}
-            />
-          )}
-  
-        </Modal>
-    );
-}; */
-
-
