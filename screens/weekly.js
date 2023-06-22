@@ -1,70 +1,76 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import WeekView from "react-native-week-view";
 import MyEventComponent from '../components/weekly page components/myEventComponent';
 import WeekScroll from '../components/weekly page components/weekScroll';
 
+import { getAuth } from 'firebase/auth';
+import { db } from '../firebaseConfigDB';
+import { collection, onSnapshot } from 'firebase/firestore';
 
-const myEvents = [
-  {
-    id: 1,
-    startDate: new Date(2023, 1, 20, 9),
-    endDate: new Date(2023, 1, 20, 11),
-    color: '#D3D3D3',
-    description: 'E1',
-    // ... more properties if needed,
-  },
-  {
-    id: 2,
-    startDate: new Date(2023, 5, 17, 10),
-    endDate: new Date(2023, 5, 17, 11, 30),
-    color: '#D3D3D3',
-    description: 'E2',
-    title: 'hi',
-  },
-  // more events...
-];
+export default function WeeklyScreen({navigation}) {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [myEvents, setMyEvents] = useState([]);
 
+  const auth = getAuth();
+  const userEmail = auth.currentUser.email;
 
-class WeeklyScreen extends Component {
+  const calendarStripRef = useRef(null);
+  const weekViewRef = useRef(null);
 
-  constructor(props) {
-    super(props);
-
-    this.state = { 
-      selectedDate: new Date(),
-    }
-
-    this.calendarStripRef = React.createRef();
-    this.weekViewRef = React.createRef();
+  const handleDateSelected = (date) => {
+    weekViewRef.current.goToDate(date, { animated: true });
+    weekViewRef.current.scrollToTime(7.8*60, { animated: true });
   };
 
-  handleDateSelected = (date) => {
-    this.weekViewRef.current.goToDate(date, { animated: true });
-    this.weekViewRef.current.scrollToTime(7.8*60, { animated: true });
+  const handleSwipeNext = (date) => {
+    setSelectedDate(date); 
+    weekViewRef.current.scrollToTime(7.8*60, { animated: true });
   };
 
-  handleSwipeNext = (date) => {
-    this.setState({ selectedDate: date }); 
-    this.weekViewRef.current.scrollToTime(7.8*60, { animated: true });
-  };
-  
-  handleSwipePrev = (date) => {
-    this.setState({ selectedDate: date }); 
-    this.weekViewRef.current.scrollToTime(7.8*60, { animated: true });
+  const handleSwipePrev = (date) => {
+    setSelectedDate(date); 
+    weekViewRef.current.scrollToTime(7.8*60, { animated: true });
   }
 
-  render() {
-    const { selectedDate } = this.state;
+  // retrieve data from realtime database
+  const getEvents = () => {
+    try {
+      const eventsRef = collection(db, 'users', userEmail, 'events');
+  
+      const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+        const eventsData = querySnapshot.docs.map((doc) => doc.data());
+        const transformedEvents = eventsData.map((event) => ({
+          id: event.id,
+          startDate: event.startDate.toDate(),
+          endDate: event.endDate.toDate(),
+          color: event.colour,
+          description: event.description,
+        }));
+        setMyEvents(transformedEvents);
+        console.log(myEvents);
+      });
+  
+      // Return an unsubscribe function to stop listening for updates
+      return unsubscribe;
+    } catch (error) {
+      console.log(error);
+    }
+  };  
 
-    return (
-      <SafeAreaView style={styles.container}>
+  useEffect(() => {
+    getEvents();
+  }, []);
+
+  return (
+
+    <SafeAreaView style={styles.container}>
         <View style={styles.contentContainer}>
 
           <WeekScroll 
-            forwardedRef={this.calendarStripRef}
+            forwardedRef={calendarStripRef}
             style={styles.exampleContainer}
-            onDateSelected={this.handleDateSelected}
+            onDateSelected={handleDateSelected}
             selectedDate={selectedDate}
           />
 
@@ -87,18 +93,18 @@ class WeeklyScreen extends Component {
               hoursInDisplay={6}
               timeStep={30}
               timesColumnWidth={0.16}
-              ref={this.weekViewRef}
-              onSwipeNext={this.handleSwipeNext}
-              onSwipePrev={this.handleSwipePrev}
+              ref={weekViewRef}
+              onSwipeNext={handleSwipeNext}
+              onSwipePrev={handleSwipePrev}
               startHour={7.8}
             />
           </View>
 
         </View>
       </SafeAreaView>
-    );
-  }
-}
+
+  );
+};
 
 
 const styles = StyleSheet.create({
@@ -150,4 +156,3 @@ const styles = StyleSheet.create({
   },
 })
 
-export default WeeklyScreen;

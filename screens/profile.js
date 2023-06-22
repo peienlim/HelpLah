@@ -26,7 +26,7 @@ export default function ProfileScreen({navigation}) {
         id: doc.id,
       })
     });
-    console.log(userData);
+    //console.log(userData);
   };
 
   // handles side effect from changing the state of object
