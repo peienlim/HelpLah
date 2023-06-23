@@ -4,7 +4,6 @@ import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
 
 import DailyView from '../components/home page components/dailyView';
 import Event from '../components/home page components/Event';
-import Class from '../components/home page components/Class';
 
 
 import { db } from '../firebaseConfigDB';
@@ -81,7 +80,7 @@ export default function HomeScreen({navigation}) {
 
 const styles = StyleSheet.create({
   background: {
-    marginLeft: 20,
+    marginLeft: 7,
     flex: 1, 
     paddingTop: 40,
     paddingHorizontal: 20,
