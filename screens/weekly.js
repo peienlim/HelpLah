@@ -9,6 +9,8 @@ import { db } from '../firebaseConfigDB';
 import { collection, onSnapshot } from 'firebase/firestore';
 
 import { handleEventLongPress } from '../hook/handleEventLongPress';
+import { handleDragEvent } from '../hook/handleDragEvent';
+import { milliseconds } from 'date-fns';
 
 export default function WeeklyScreen({navigation}) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -112,6 +114,9 @@ export default function WeeklyScreen({navigation}) {
               startHour={7.8}
               showNowLine={true}
               onEventLongPress={(event) => handleEventLongPress(event)}
+              //onEventPress={HandleEventPress}
+              onDragEvent = {(event, newStartDate, newEndDate) => handleDragEvent(event, newStartDate, newEndDate)}
+              afterLongPressDuration = {milliseconds}
             />
           </View>
 
@@ -169,4 +174,3 @@ const styles = StyleSheet.create({
 
   },
 })
-
