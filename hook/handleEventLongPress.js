@@ -4,7 +4,7 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
 import { doc, deleteDoc } from 'firebase/firestore';
 
-export const handleEventLongPress =(event) => {
+export const handleEventLongPress = (event) => {
 
   async function handleDeleteEvent() {
     try {

@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, ScrollView, View } from 'react-native';
 import WeekView from 'react-native-week-view';
 import MyEventComponent from '../weekly page components/myEventComponent';
-import moment from 'moment';
-
 import { getAuth } from 'firebase/auth';
 import { db } from '../../firebaseConfigDB';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 
 export default function DailyView() {
   const auth = getAuth();
@@ -43,6 +41,9 @@ export default function DailyView() {
           endDate: event.endDate.toDate(),
           color: event.colour,
           description: event.description,
+          description: event.completed
+            ? `${event.description} (done)` // Add " (done)" to the description if the event is completed
+            : event.description,
         }));                                    
                                             
         setMyEvents(transformedEvents);
@@ -61,7 +62,33 @@ export default function DailyView() {
     getEvents();
   }, []);
 
- 
+  const handleTickEvent = (event) => {
+    const eventRef = doc(collection(db, 'users', userEmail, 'events'), event.id);
+    const newStatus = !event.completed; // Toggle the completed status
+    let newDescription = event.description;
+
+    if (newStatus) {
+      newDescription += ' (done)'; // Append " (done)" to the description if the event is marked as completed
+    } else if (newDescription.endsWith(' (done)')) {
+      newDescription = newDescription.slice(0, -7); // Remove " (done)" from the description if the event is reverted back to its original state
+    }
+  
+    updateDoc(eventRef, { completed: newStatus })
+      .then(() => {
+        console.log('Event status and description updated!');
+        const updatedEvents = myEvents.map((ev) => {
+          if (ev.id === event.id) {
+            return { ...ev, completed: newStatus, description: newDescription };
+          }
+          return ev;
+        });
+        setMyEvents(updatedEvents);
+      })
+      .catch((error) => {
+        console.log('Error updating event status:', error);
+      });
+  };
+  
 
   return (
     <View style={styles.dailyview}>
@@ -89,6 +116,7 @@ export default function DailyView() {
           startHour={currentTimeInMinutes}
           showNowLine={true}
           fixedHorizontally={true}
+          onEventPress={handleTickEvent}
         />
       </View>    
     </View>
