@@ -8,9 +8,12 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
 import { collection, onSnapshot } from 'firebase/firestore';
 
+import { handleEventLongPress } from '../hook/handleEventLongPress';
+
 export default function WeeklyScreen({navigation}) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [myEvents, setMyEvents] = useState([]);
+  const [isMeasurementDone, setIsMeasurementDone] = useState(false);
 
   const auth = getAuth();
   const userEmail = auth.currentUser.email;
@@ -20,18 +23,24 @@ export default function WeeklyScreen({navigation}) {
 
   const handleDateSelected = (date) => {
     weekViewRef.current.goToDate(date, { animated: true });
-    weekViewRef.current.scrollToTime(7.8*60, { animated: true });
+    scrollToTimeAfterMeasurement(7.8 * 60);
   };
 
   const handleSwipeNext = (date) => {
-    setSelectedDate(date); 
-    weekViewRef.current.scrollToTime(7.8*60, { animated: true });
+    setSelectedDate(date);
+    scrollToTimeAfterMeasurement(7.8 * 60);
   };
 
   const handleSwipePrev = (date) => {
-    setSelectedDate(date); 
-    weekViewRef.current.scrollToTime(7.8*60, { animated: true });
-  }
+    setSelectedDate(date);
+    scrollToTimeAfterMeasurement(7.8 * 60);
+  };
+
+  const scrollToTimeAfterMeasurement = (timeInMinutes) => {
+    if (isMeasurementDone) {
+      weekViewRef.current.scrollToTime(timeInMinutes, { animated: true });
+    }
+  };
 
   // retrieve data from realtime database
   const getEvents = () => {
@@ -48,7 +57,7 @@ export default function WeeklyScreen({navigation}) {
           description: event.description,
         }));
         setMyEvents(transformedEvents);
-        console.log(myEvents);
+        //console.log(myEvents);
       });
   
       // Return an unsubscribe function to stop listening for updates
@@ -61,6 +70,10 @@ export default function WeeklyScreen({navigation}) {
   useEffect(() => {
     getEvents();
   }, []);
+
+  const handleLayout = () => {
+    setIsMeasurementDone(true);
+  };
 
   return (
 
@@ -97,6 +110,8 @@ export default function WeeklyScreen({navigation}) {
               onSwipeNext={handleSwipeNext}
               onSwipePrev={handleSwipePrev}
               startHour={7.8}
+              showNowLine={true}
+              onEventLongPress={(event) => handleEventLongPress(event)}
             />
           </View>
 
