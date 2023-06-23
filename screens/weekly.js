@@ -158,7 +158,6 @@ const styles = StyleSheet.create({
   },
   eventContainer: {
     borderRadius: 10,
-
   },
   gridColumn: {
     

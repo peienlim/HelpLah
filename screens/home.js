@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
-
+import moment from 'moment';
 
 import DailyView from '../components/home page components/dailyView';
 import Event from '../components/home page components/Event';
@@ -18,6 +18,7 @@ export default function HomeScreen({navigation}) {
   const userEmail = auth.currentUser.email;
 
   const [userData, setUserData] = useState({});
+  const formattedDate = moment().format("ddd, DD MMMM YYYY");
 
   // Function to retrieve user's name from firestore using their unique email address
   const getUserInfo = async () => {
@@ -43,7 +44,7 @@ export default function HomeScreen({navigation}) {
 
         <View style={styles.top}> 
           <Text style={styles.hello}>Hello {userData.name ? userData.name : 'Loading...'}!</Text>
-          <Text style={styles.date}>Mon, 12 June 2023</Text>
+          <Text style={styles.date}>{formattedDate}</Text>
         </View>
 
         <View style={styles.todayce}>
@@ -80,7 +81,7 @@ export default function HomeScreen({navigation}) {
 
 const styles = StyleSheet.create({
   background: {
-    marginLeft: 7,
+    marginLeft: 3,
     flex: 1, 
     paddingTop: 40,
     paddingHorizontal: 20,
@@ -98,12 +99,12 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   todayce: {
-    flex: 1.7,
+    flex: 1.5,
   },
   phc: {
     paddingTop: 10,
     flexDirection:"row",
-    flex: 1,
+    flex: 1.3,
   },
   phccontainer: {
     flex: 0.8,
@@ -122,6 +123,7 @@ const styles = StyleSheet.create({
   header: {
     fontFamily:"spacemono-bold", 
     fontSize:13.5,
+    paddingBottom: 4
   }, 
 
 
