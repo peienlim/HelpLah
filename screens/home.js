@@ -24,7 +24,7 @@ export default function HomeScreen({navigation}) {
       const q = query(collection(db, "users"), where("email", "==", userEmail));
       const querySnapShot = await getDocs(q);
       querySnapShot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
+        //console.log(doc.id, " => ", doc.data());
         setUserData({
           ...doc.data(),
           id: doc.id,

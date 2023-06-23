@@ -46,7 +46,7 @@ export default function SignUpScreen({ navigation }) {
                 name: name,
                 email: email,
             });
-            console.log("New Document for user created");
+            //console.log("New Document for user created");
         } catch(error) {
             console.log(error);
         }
