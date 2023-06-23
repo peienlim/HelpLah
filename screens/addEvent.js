@@ -52,6 +52,7 @@ export default function AddEvent({navigation}) {
           startDate: date,
           endDate: endDate,
           colour: selectedColour,
+          completed: false, 
         });
         await navigation.goBack();
       } catch(error) {

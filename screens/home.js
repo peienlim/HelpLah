@@ -5,7 +5,6 @@ import moment from 'moment';
 import DailyView from '../components/home page components/dailyView';
 import Event from '../components/home page components/Event';
 
-
 import { db } from '../firebaseConfigDB';
 import { collection, query, where, getDocs } from "firebase/firestore";
 
