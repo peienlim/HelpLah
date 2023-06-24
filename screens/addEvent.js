@@ -25,6 +25,14 @@ export default function AddEvent({navigation}) {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
 
+    const [category, setCategory] = useState("task");
+    const categories = [
+      {key: '1', value: 'class'},
+      {key: '2', value: 'event'},
+      {key: '3', value: 'others'},
+      {key: '4', value: 'task'},
+    ]
+
     const [selectedColour, setSelectedColour] = useState("grey");
     const colours = [
       {key: '1', value: 'red'},
@@ -51,6 +59,7 @@ export default function AddEvent({navigation}) {
           description: descr,
           startDate: date,
           endDate: endDate,
+          category: category,
           colour: selectedColour,
           completed: false, 
         });
@@ -157,6 +166,19 @@ export default function AddEvent({navigation}) {
                 onChange={dateType === 'start' ? handleSetDate : handleSetEndDate}
               />
             )}
+
+            <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Category...</Text>
+            <SelectList
+              setSelected={(val) => setCategory(val)}
+              data = {categories}
+              save = 'value'
+              boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
+              searchPlaceholder='Select Category...'
+              searchicon = {<Ionicons name="color-palette" color='black' paddingRight={5} size={15}/>}
+              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: 'black'}}
+              label = "Category..."
+              dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
+            />
 
             <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Colour...</Text>
             <SelectList
