@@ -82,10 +82,17 @@ export default function ProfileScreen({navigation}) {
         const desc = event.description;
         const startdt = event.dtstart; 
         const recurrenceRule = event.recurrenceRule;
-        const rrule = recurrenceRule._rrule;
+        //const freq = recurrenceRule.options.freq;
+        //const interval = recurrenceRule.origOptions.interval;
+        //const byweekday = recurrenceRule.origOptions.byweekday;
 
-        console.log(desc);
-        console.log(startdt);
+        //console.log(recurrenceRule); 
+
+        //console.log(desc);
+        //console.log(startdt);
+        //console.log(freq);
+        //console.log(interval);
+        //console.log(byweekday);
         //console.log(freq);
         //console.log(interval);
       });
@@ -121,7 +128,7 @@ export default function ProfileScreen({navigation}) {
           </TouchableOpacity>
         </View>
 
-        <View> 
+        <View style={{paddingTop:20}}> 
           <Button title="Upload NUSMods timetable" onPress={pickDoc} />
         </View>
 

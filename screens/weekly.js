@@ -57,6 +57,8 @@ export default function WeeklyScreen({navigation}) {
           endDate: event.endDate.toDate(),
           color: event.colour,
           description: event.description,
+          category: event.category,
+          completed: event.completed,
         }));
         setMyEvents(transformedEvents);
         //console.log(myEvents);
