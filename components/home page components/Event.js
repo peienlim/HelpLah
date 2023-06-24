@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function Event() {
+export default function Event({ colour, description }) {
   return (
-      <View style={styles.container}>
-        <Text style={styles.event}>Event</Text>
+      <View style={[styles.container, { backgroundColor: colour }]}>
+        <Text style={styles.event}>{description}</Text>
       </View>
   );
 

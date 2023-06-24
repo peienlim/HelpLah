@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, ScrollView, View } from 'react-native';
 import WeekView from 'react-native-week-view';
 import MyEventComponent from '../weekly page components/myEventComponent';
@@ -11,9 +11,7 @@ export default function DailyView() {
   const userEmail = auth.currentUser.email;
 
   const [myEvents, setMyEvents] = useState([]);
-
-  //get today's date so that correct calendar page shown 
-  const selectedDate = new Date();
+  const [selectedDate, setSelectedDate] = useState(new Date()); 
 
   //get current time so that daily view calendar starts off at current timing
   const currentTime = new Date();
@@ -39,14 +37,12 @@ export default function DailyView() {
           id: event.id,
           startDate: event.startDate.toDate(),
           endDate: event.endDate.toDate(),
+          category: event.category,
           color: event.colour,
           description: event.description,
-          description: event.completed
-            ? `${event.description} (done)` // Add " (done)" to the description if the event is completed
-            : event.description,
-        }));                                    
+        }));                              
                                             
-        setMyEvents(transformedEvents);
+        setMyEvents(transformedEvents); 
         console.log(myEvents);
       });
 
@@ -72,7 +68,7 @@ export default function DailyView() {
     } else if (newDescription.endsWith(' (done)')) {
       newDescription = newDescription.slice(0, -7); // Remove " (done)" from the description if the event is reverted back to its original state
     }
-  
+
     updateDoc(eventRef, { completed: newStatus })
       .then(() => {
         console.log('Event status and description updated!');
@@ -93,7 +89,7 @@ export default function DailyView() {
   return (
     <View style={styles.dailyview}>
       <View style={styles.overlay}>
-        <Text style={styles.header}>Today's Schedule</Text>
+        <Text style={styles.header}>Today's Schedule:</Text>
       </View> 
       <View style={styles.calendar}>
         <WeekView
