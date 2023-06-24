@@ -3,7 +3,7 @@ import { Text, View, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Aler
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useTogglePwVisibility } from '../hook/useTogglePwVisibility';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 
 import { db } from '../firebaseConfigDB';
 import { doc, setDoc } from 'firebase/firestore';
@@ -31,16 +31,31 @@ export default function SignUpScreen({ navigation }) {
             return;
         }
 
+        if (password.length < 6) {
+            Alert.alert("Password needs to have at least 6 characters!");
+            return;
+        }
+
         try {
+
+            // Check if the email already has a valid account
+            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+
+            if (signInMethods.length > 0) {
+                // Email is already registered with an account
+                Alert.alert("Email already has a valid account");
+                return;
+            }
+
             await createUserWithEmailAndPassword(auth, email, password);
             await navigation.navigate("LoginScreen");
             await addUser();
         } catch (error) {
-            Alert.alert("Check the validity of your email/Password length!");
+            Alert.alert("Check the validity of your email!");
         }
     }
-
-    async function addUser() {
+ 
+     async function addUser() {
         try {
             await setDoc(doc(db, "users", email),{
                 name: name,
