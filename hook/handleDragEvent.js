@@ -16,6 +16,8 @@ export const handleDragEvent = (event, newStartDate, newEndDate) => {
                 startDate: newStartDate,
                 endDate: newEndDate,
                 colour: event.color,
+                category: event.category,
+                completed: event.completed,
             });
         } catch (error) {
             console.log(error);

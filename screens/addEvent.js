@@ -34,6 +34,7 @@ export default function AddEvent({navigation}) {
     ]
 
     const [selectedColour, setSelectedColour] = useState("grey");
+     
     const colours = [
       {key: '1', value: 'red'},
       {key: '2', value: 'orange'},
@@ -44,6 +45,29 @@ export default function AddEvent({navigation}) {
       {key: '7', value: 'pink'},
       {key: '8', value: 'grey'},
     ];
+    
+    // Helper function to map color names to hex codes
+    const mapColorsToHex = (color) => {
+      if (color === 'red') {
+        return '#FF9191';
+      } else if (color === 'orange') {
+        return '#FFC891';
+      } else if (color === 'yellow') {
+        return '#F7DC6F';
+      } else if (color === 'green') {
+        return '#9FE2BF';
+      } else if (color === 'blue') {
+        return '#AED6F1';
+      } else if (color === 'purple') {
+        return '#CCCCFF';
+      } else if (color === 'pink') {
+        return '#FADBD8';
+      } else if (color === 'grey') {
+        return '#808080';
+      } else {
+        return '#808080';
+      }
+    };
 
     // Retrieve User's email from Firebase authentication
     const auth = getAuth();
@@ -174,7 +198,7 @@ export default function AddEvent({navigation}) {
               save = 'value'
               boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
               searchPlaceholder='Select Category...'
-              searchicon = {<Ionicons name="color-palette" color='black' paddingRight={5} size={15}/>}
+              searchicon = {<Ionicons name="cube-outline" color='black' paddingRight={5} size={15}/>}
               inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: 'black'}}
               label = "Category..."
               dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
@@ -182,7 +206,7 @@ export default function AddEvent({navigation}) {
 
             <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Colour...</Text>
             <SelectList
-              setSelected={(val) => setSelectedColour(val)}
+              setSelected={(val) => setSelectedColour(mapColorsToHex(val))}
               data = {colours}
               save = 'value'
               boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
@@ -191,7 +215,7 @@ export default function AddEvent({navigation}) {
               //defaultOption={{key: '8', value: 'grey'}}
               inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selectedColour}}
               label = "Colour..."
-              dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
+              dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}} 
             />
 
             <View style={{paddingTop: 50}}>
@@ -243,4 +267,16 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       flexDirection: 'row',
     },
+    dropdownOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+    },
+    dropdownOptionText: {
+      fontFamily: 'spacemono',
+      fontSize: 13,
+      marginLeft: 5,
+    }
+      
 });

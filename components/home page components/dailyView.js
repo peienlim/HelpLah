@@ -40,7 +40,7 @@ export default function DailyView() {
           category: event.category,
           color: event.colour,
           description: event.description,
-        }));                              
+        }));                          
                                             
         setMyEvents(transformedEvents); 
         console.log(myEvents);
@@ -107,7 +107,7 @@ export default function DailyView() {
           formatDateHeader='ddd D'
           allowScrollByDay={true}
           hoursInDisplay={6}
-          timeStep={60}
+          timeStep={30}
           timesColumnWidth={0.14}
           startHour={currentTimeInMinutes}
           showNowLine={true}
