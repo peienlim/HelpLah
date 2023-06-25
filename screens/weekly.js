@@ -115,8 +115,8 @@ export default function WeeklyScreen({navigation}) {
               onSwipePrev={handleSwipePrev}
               startHour={7.8}
               showNowLine={true}
-              onEventLongPress={(event) => handleEventLongPress(event)}
-              //onEventPress={HandleEventPress}
+              //onEventLongPress={(event) => handleEventLongPress(event)}
+              onEventPress={(event) => handleEventLongPress(event)}
               onDragEvent = {(event, newStartDate, newEndDate) => handleDragEvent(event, newStartDate, newEndDate)}
               afterLongPressDuration = {milliseconds}
             />
