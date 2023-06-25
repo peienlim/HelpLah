@@ -45,7 +45,12 @@ export default function HomeScreen({navigation}) {
     getUserInfo();
   }, []);
 
-  
+  const updateEvDescr = (descr) => {
+    if (descr.startsWith('T: ') || descr.startsWith('C: ') || descr.startsWith('O: ') || descr.startsWith('E: ')) {
+      return descr.substring(3);
+    } 
+    return descr;
+  }
 
   // retrieve data from realtime database
   const getEventsCat = () => {
@@ -64,7 +69,7 @@ export default function HomeScreen({navigation}) {
 
         const eventDCs = filteredEvents
           .filter((event) => event.category === 'event')
-          .map((event) => ({ colour: event.colour, description: event.description }));
+          .map((event) => ({ colour: event.colour, description: updateEvDescr(event.description) }));
           setEventsDC(eventDCs);
           console.log(eventDCs);
       });

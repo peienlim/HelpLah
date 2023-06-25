@@ -11,6 +11,7 @@ import { db } from '../firebaseConfigDB';
 import { doc, setDoc } from 'firebase/firestore';
 
 import { generateUUID } from '../hook/generateUUID';
+import { el } from 'date-fns/locale';
 
 
 export default function AddEvent({navigation}) {
@@ -73,14 +74,29 @@ export default function AddEvent({navigation}) {
     const auth = getAuth();
     const userEmail = auth.currentUser.email;
 
+    const mapItemToCat = (descr, category) => {
+      if (category === 'event') {
+        return 'E: ' + descr;
+      } else if (category === 'task') {
+        return 'T: ' + descr;
+      } else if (category === 'class') {
+        return 'C: ' + descr;
+      } else if (category === 'others') {
+        return 'O: ' + descr;
+      } else {
+        return descr;
+      }
+    }
+
     // adds Event Data into a subcollection of users data
     async function handleAddEvent() {
       try {
         const uniqueID = generateUUID(15);
+        const description = mapItemToCat(descr, category);
         const docRef = doc(db, 'users', userEmail, "events", uniqueID);
         await setDoc(docRef, {
           id: uniqueID,
-          description: descr,
+          description: description,
           startDate: date,
           endDate: endDate,
           category: category,
