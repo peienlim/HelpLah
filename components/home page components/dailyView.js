@@ -19,6 +19,14 @@ export default function DailyView() {
   const currentMinutes = currentTime.getMinutes();
   const currentTimeInMinutes = currentHour * 60 + currentMinutes;
   
+  const getDescr = (descr, completed) => {
+    if (completed) {
+      return descr += ' (done)';
+    } else {
+      return descr;
+    }
+  }
+
   // retrieve data from realtime database
   const getEvents = () => {
     try {
@@ -39,7 +47,7 @@ export default function DailyView() {
           endDate: event.endDate.toDate(),
           category: event.category,
           color: event.colour,
-          description: event.description,
+          description: getDescr(event.description, event.completed),
         }));                          
                                             
         setMyEvents(transformedEvents); 
@@ -63,10 +71,10 @@ export default function DailyView() {
     const newStatus = !event.completed; // Toggle the completed status
     let newDescription = event.description;
 
-    if (newStatus) {
+    if (newStatus && !newDescription.endsWith(' (done)')) {
       newDescription += ' (done)'; // Append " (done)" to the description if the event is marked as completed
-    } else if (newDescription.endsWith(' (done)')) {
-      newDescription = newDescription.slice(0, -7); // Remove " (done)" from the description if the event is reverted back to its original state
+    } else if (!newStatus && newDescription.endsWith(' (done)')) {
+      newDescription = newDescription.slice(0, -7);
     }
 
     updateDoc(eventRef, { completed: newStatus })
