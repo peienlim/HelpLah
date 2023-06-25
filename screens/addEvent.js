@@ -196,6 +196,7 @@ export default function AddEvent({navigation}) {
                 value={dateType === 'start' ? date : endDate}
                 mode={mode}
                 is24Hour={true}
+                minuteInterval={5}
                 display="default"
                 onChange={dateType === 'start' ? handleSetDate : handleSetEndDate}
               />
