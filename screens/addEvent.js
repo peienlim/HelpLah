@@ -1,4 +1,4 @@
-import { View, Modal, Text, TouchableOpacity, StyleSheet, TextInput, Button, Platform, SafeAreaView } from 'react-native';
+import { View, Modal, Text, TouchableOpacity, StyleSheet, TextInput, Button, Platform, SafeAreaView, Alert } from 'react-native';
 import React, {useState} from 'react'
  
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,7 +11,6 @@ import { db } from '../firebaseConfigDB';
 import { doc, setDoc } from 'firebase/firestore';
 
 import { generateUUID } from '../hook/generateUUID';
-import { el } from 'date-fns/locale';
 
 
 export default function AddEvent({navigation}) {
@@ -74,29 +73,24 @@ export default function AddEvent({navigation}) {
     const auth = getAuth();
     const userEmail = auth.currentUser.email;
 
-    const mapItemToCat = (descr, category) => {
-      if (category === 'event') {
-        return 'E: ' + descr;
-      } else if (category === 'task') {
-        return 'T: ' + descr;
-      } else if (category === 'class') {
-        return 'C: ' + descr;
-      } else if (category === 'others') {
-        return 'O: ' + descr;
-      } else {
-        return descr;
-      }
-    }
-
     // adds Event Data into a subcollection of users data
     async function handleAddEvent() {
+      if (descr === "") {
+        Alert.alert("Description needed!")
+        return;
+      }
+
+      if (date.getDate() === endDate.getDate() && date.getTime() === endDate.getTime()) {
+        Alert.alert("StartDate and EndDate is exactly the same!")
+        return;
+      }
+
       try {
         const uniqueID = generateUUID(15);
-        const description = mapItemToCat(descr, category);
         const docRef = doc(db, 'users', userEmail, "events", uniqueID);
         await setDoc(docRef, {
           id: uniqueID,
-          description: description,
+          description: descr,
           startDate: date,
           endDate: endDate,
           category: category,
@@ -203,7 +197,6 @@ export default function AddEvent({navigation}) {
                 mode={mode}
                 is24Hour={true}
                 display="default"
-                minuteInterval={5}
                 onChange={dateType === 'start' ? handleSetDate : handleSetEndDate}
               />
             )}
