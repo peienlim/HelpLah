@@ -73,6 +73,20 @@ export default function AddEvent({navigation}) {
     const auth = getAuth();
     const userEmail = auth.currentUser.email;
 
+    const getDescr = (descr, category) => {
+      if (category === 'task') {
+        return 'T: ' + descr;
+      } else if (category === 'event') {
+        return 'E: ' + descr;
+      } else if (category === 'class') {
+        return 'C: ' + descr;
+      } else if (category === 'other') {
+        return 'O: ' + descr;
+      } else {
+        return descr;
+      }
+    }
+
     // adds Event Data into a subcollection of users data
     async function handleAddEvent() {
       if (descr === "") {
@@ -90,7 +104,7 @@ export default function AddEvent({navigation}) {
         const docRef = doc(db, 'users', userEmail, "events", uniqueID);
         await setDoc(docRef, {
           id: uniqueID,
-          description: descr,
+          description: getDescr(descr, category),
           startDate: date,
           endDate: endDate,
           category: category,
