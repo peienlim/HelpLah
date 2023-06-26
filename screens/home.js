@@ -187,14 +187,14 @@ export default function HomeScreen({navigation}) {
         <DailyView/>
 
         <View style={styles.phc}>
-          <View style={{flex:1}}>
+          <View style={{flex:1, paddingBottom:5}}>
             <Text style={styles.header}>Productive Hours:</Text>
             <View style={styles.phccontainer}>
               <Text style={styles.phctext}>~{productiveHours}!</Text>
             </View>
           </View>
 
-          <View style={{flex:1}}>
+          <View style={{flex:1, paddingBotom: 5}}>
             <Text style={styles.header}>Completed tasks:</Text>
             <View style={styles.phccontainer}>
                 <Text style={styles.phctext}>{completedTasks}/{totalTasks}!</Text>
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   background: {
     marginLeft: 3,
     flex: 1, 
-    paddingTop: 40,
+    //paddingTop: 40,
     paddingHorizontal: 20,
   },
   top: {
@@ -223,10 +223,12 @@ const styles = StyleSheet.create({
   },
   date: {
     fontFamily:"spacemono",
-    fontSize: 12
+    fontSize: 12,
+    paddingTop: 2,
   },
   todayce: {
     flex: 1.5,
+    paddingTop: 5,
   },
   phc: {
     paddingTop: 10,

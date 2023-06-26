@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, StyleSheet, View , StatusBar} from 'react-native';
 import WeekView from "react-native-week-view";
 import MyEventComponent from '../components/weekly page components/myEventComponent';
 import WeekScroll from '../components/weekly page components/weekScroll';
@@ -132,6 +132,7 @@ export default function WeeklyScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop:StatusBar.currentHeight, 
   },
   contentContainer: {
     flex: 1,
