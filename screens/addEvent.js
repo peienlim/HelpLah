@@ -157,7 +157,7 @@ export default function AddEvent({navigation}) {
         animationType='slide' 
         onRequestClose={()=> navigation.goBack()} 
         statusBarTranslucent={false} 
-        transparent={true}>
+        transparent={false}>
   
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
 
