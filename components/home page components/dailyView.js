@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, ScrollView, View } from 'react-native';
+import { StyleSheet, Text, ScrollView, View, Alert, Modal, StatusBar, Button, TouchableOpacity} from 'react-native';
 import WeekView from 'react-native-week-view';
 import MyEventComponent from '../weekly page components/myEventComponent';
 import { getAuth } from 'firebase/auth';
 import { db } from '../../firebaseConfigDB';
 import { collection, onSnapshot, updateDoc, doc } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+import CountDownTimer from '../countdownTimer';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import moment from 'moment';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function DailyView() {
   const auth = getAuth();
@@ -18,6 +23,7 @@ export default function DailyView() {
   const currentHour = currentTime.getHours();
   const currentMinutes = currentTime.getMinutes();
   const currentTimeInMinutes = currentHour * 60 + currentMinutes;
+
   
   const getDescr = (descr, completed) => {
     if (completed) {
@@ -93,9 +99,46 @@ export default function DailyView() {
       });
   };
   
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalEvent, setModalEvent] = useState(null);
+  const [modalEventTime, setModalEventTime] = useState(0); // in miliseconds
+  
+  // handles long press of event to display focus timer
+  const handleLongPress = (event) => {
+    const startTime = event.startDate.getTime();
+    const endTime = event.endDate.getTime();
+    Alert.alert("Focus Mode", "Do you want to enter Focus Mode?", [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel'),
+      },
+      {
+        text: 'Confirm',
+        onPress: () => {
+          setModalEvent(event); // need to set in this order for the timer to show the correct time!
+          setModalEventTime(event.endDate.getTime() - event.startDate.getTime());
+          setModalVisible(true);
+        }
+      }
+    ]);
+  };
+
+  const handleExitFocus = () => {
+    Alert.alert("Exit Focus Mode", "Are you sure you want to exit Focus Mode?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel"),
+      },
+      {
+        text: "Confirm",
+        onPress: () => setModalVisible(!modalVisible),
+      }
+    ]);
+  };
+
 
   return (
-    <View style={styles.dailyview}>
+      <View style={styles.dailyview}>
       <View style={styles.overlay}>
         <Text style={styles.header}>Today's Schedule:</Text>
       </View> 
@@ -121,11 +164,36 @@ export default function DailyView() {
           showNowLine={true}
           fixedHorizontally={true}
           onEventPress={handleTickEvent}
+          onEventLongPress={(event) => handleLongPress(event)}
         />
-      </View>    
-    </View>
-  )
+      </View>  
 
+      <Modal 
+        animationType="slide"
+        transparent={false}
+        visible={modalVisible}>
+          <SafeAreaView style={{alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: StatusBar.currentHeight}}>
+
+            <View style={{paddingTop: 190,}}>
+
+              <TouchableOpacity onPress={() => handleExitFocus()} style={{paddingRight: 270, paddingBottom: 150, flexDirection: 'row'}}>
+                <Ionicons name='arrow-back-outline' color='grey' size={20}/>
+                <Text style={{fontSize: 15, fontFamily: 'spacemono', color: 'grey'}}> Exit</Text>
+              </TouchableOpacity>
+
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={styles.eventText}>{modalEvent ? modalEvent.description : "noevent"}</Text>
+              </View>
+            </View>
+
+            <View style={{paddingBottom: 400, alignItems: 'center', justifyContent: 'center'}}>
+              <CountDownTimer duration={modalEventTime > 0 ? modalEventTime/1000 : 0}></CountDownTimer>
+            </View>
+          </SafeAreaView>
+
+      </Modal>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -171,6 +239,18 @@ const styles = StyleSheet.create({
     },
     gridRow: {
       borderLeftWidth: 1
+    },
+    eventText: {
+      fontFamily:'spacemono-bold', 
+      fontSize: 30, 
+      /* paddingBottom: 35, 
+      paddingRight: 200, 
+      paddingTop: 50, */
+    },
+    returnButton: {
+      paddingRight: 250, 
+      flexDirection: 'row',
+      paddingBottom: 45
     }
 }
 )

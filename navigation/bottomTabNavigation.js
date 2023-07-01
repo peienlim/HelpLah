@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import DrawerStack from './drawerNavigation';
 import WeeklyScreen from '../screens/weekly';
-import FocusScreen from '../screens/statistics';
+import FocusScreen from '../screens/focus';
 import CommunityScreen from '../screens/community';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
