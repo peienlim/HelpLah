@@ -7,6 +7,10 @@ const CountDownTimer = ({duration}) => { // duration units is in seconds
     const [time, setTime] = useState(duration); //duration should be in seconds
     const [isActive, setIsActive] = useState(false);
 
+    useEffect(() => {
+        // Use timerDuration as the initial value
+        setTime(duration);
+      }, [duration]);
 
     useEffect(() => {
         let interval = null;
@@ -32,6 +36,7 @@ const CountDownTimer = ({duration}) => { // duration units is in seconds
     };
 
     const startTimer = () => {
+        setTime(duration);
         setIsActive(true);
     };
 
