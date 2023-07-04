@@ -2,8 +2,6 @@ import React, {useState} from 'react';
 import { StyleSheet, Text, SafeAreaView, View, StatusBar, TouchableOpacity, Modal, Button, TextInput } from 'react-native';
 
 import CountDownTimer from '../components/countdownTimer';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import ScrollPicker from 'react-native-wheel-scrollview-picker';
 import {SelectList} from 'react-native-dropdown-select-list';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -49,7 +47,7 @@ export default function FocusScreen({navigation}) {
         <Text style={{fontFamily: "spacemono-bold", fontSize: 25}}>FOCUS TIMER</Text>
       </View>
 
-      <TouchableOpacity onPress={() => setShowModal(true)}>
+      <TouchableOpacity onPress={() => setShowModal(true)} testID="select-time-button">
           <Text style={{fontFamily: 'spacemono', color: '#9AC791'}}>Select Time</Text>
       </TouchableOpacity>
 
@@ -60,6 +58,7 @@ export default function FocusScreen({navigation}) {
           transparent={false}
           onRequestClose={() => setShowModal(false)}
           animation='slide'
+          testID="modal-component"
         >
           <View style={styles.modalContainer}>
             
@@ -77,7 +76,7 @@ export default function FocusScreen({navigation}) {
             />
 
             <View style={{padding: 15}}>
-              <TouchableOpacity onPress={() => setShowModal(false)}>
+              <TouchableOpacity onPress={() => setShowModal(false)} testID= 'done-button'>
                 <Text style={{fontFamily: 'spacemono-bold', color: '#9AC791'}}>Done</Text>
               </TouchableOpacity>
             </View>

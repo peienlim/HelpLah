@@ -7,7 +7,7 @@ const CountDownTimer = ({duration}) => { // duration units is in seconds
     const [time, setTime] = useState(duration); //duration should be in seconds
     const [isActive, setIsActive] = useState(false);
 
-    useEffect(() => {
+ /*    useEffect(() => {
         // Use timerDuration as the initial value
         setTime(duration);
       }, [duration]);
@@ -27,7 +27,28 @@ const CountDownTimer = ({duration}) => { // duration units is in seconds
         }
 
         return () => clearInterval(interval);
-    }, [isActive, time]);
+    }, [isActive, time]); */
+
+    useEffect(() => {
+        let interval = null;
+      
+        if (isActive && time > 0) {
+          interval = setInterval(() => {
+            setTime(prevTime => {
+              if (prevTime <= 1) {
+                // Pomodoro timer is completed
+                clearInterval(interval);
+                setIsActive(false);
+                return duration;
+              }
+              return prevTime - 1;
+            });
+          }, 1000);
+        }
+      
+        return () => clearInterval(interval);
+      }, [isActive, time, duration]);
+      
 
     const formatTime = (totalSeconds) => {
         const minutes = Math.floor(totalSeconds / 60);
@@ -56,7 +77,7 @@ const CountDownTimer = ({duration}) => { // duration units is in seconds
                 <Text style={{fontFamily: 'spacemono'}}>{moment().format("ddd, DD MMMM YYYY")}</Text>
             </View>
 
-            <TouchableOpacity>
+            <TouchableOpacity testID='countdown-timer'>
                 <Text style={styles.timerText}> {formatTime(time)} </Text>
             </TouchableOpacity>
 
