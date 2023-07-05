@@ -36,7 +36,7 @@ export default function ProfileScreen({navigation}) {
         })
       });
     } catch (error) {
-      console.log('Error retrieving user info: ', error);
+      console.log('Error retrieving user info: ', error.message);
     }
 
   };
@@ -300,11 +300,11 @@ export default function ProfileScreen({navigation}) {
         return;
 
       } catch (error) {
-        console.log('Error parsing ICS file: ', error);
+        console.log('Error parsing ICS file: ', error.message);
       }
      
     } catch (error) {
-      Alert.alert('Something went wrong: ', error); 
+      Alert.alert('Something went wrong: ', error.message); 
     }
   } 
 

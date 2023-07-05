@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, SafeAreaView, View, StatusBar, TouchableOpacity, Modal, Button, TextInput } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View, StatusBar, TouchableOpacity, Modal, Alert } from 'react-native';
 
 import CountDownTimer from '../components/countdownTimer';
 import {SelectList} from 'react-native-dropdown-select-list';
@@ -8,10 +8,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function FocusScreen({navigation}) {
   const [showModal, setShowModal] = useState(false);
-  /* const [selectedTime, setSelectedTime] = useState(new Date()); */
   const [min, setMin] = useState(0);
   
   const minIntervals = [
+    {key: '0', value: 1},
     {key: '1', value: 5},
     {key: '2', value: 10},
     {key: '3', value: 15},
@@ -38,19 +38,63 @@ export default function FocusScreen({navigation}) {
     {key: '24', value: 120},
   ]
 
+  const handleExitFocus = () => {
+    Alert.alert("Exit Focus Mode", "Are you sure you want to exit Focus Mode?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel"),
+      },
+      {
+        text: "Confirm",
+        onPress: () => setShowModal(false),
+      }
+    ]);
+  };
+
+  const handleEnterFocus = () => {
+    if (min > 0) {
+      setShowModal(true);
+    } else {
+      Alert.alert("You have not selected a time!")
+    }
+  };
+
+  const navigateToHomeScreen = () => {
+    navigation.navigate('FocusScreen');
+  };  
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
   //duration should be in seconds
   return (
     <SafeAreaView style ={styles.background}>
 
-      <View style={{paddingTop: 300}}>
+      <View style={{paddingTop: 45}}>
         <Text style={{fontFamily: "spacemono-bold", fontSize: 25}}>FOCUS TIMER</Text>
       </View>
 
-      <TouchableOpacity onPress={() => setShowModal(true)} testID="select-time-button">
-          <Text style={{fontFamily: 'spacemono', color: '#9AC791'}}>Select Time</Text>
-      </TouchableOpacity>
+      <Ionicons name="timer" color='#9AC791' size={30} padding={10}/>
 
+      <View style ={{padding: 25, }}>
+        <Text style ={{fontFamily: 'spacemono', padding: 10, justifyContent: 'center'}}>Select Time...</Text>
+              <SelectList
+                setSelected={(val) => setMin(val)}
+                data = {minIntervals}
+                save = 'value'
+                boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 250, paddingTop: 7, paddingLeft: 15}}
+                searchPlaceholder='minutes'
+                searchicon = {<Ionicons name="alarm" color='black' paddingRight={5} size={15}/>}
+                inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: 'black'}}
+                label = "Min"
+                dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
+              />
+      </View>
+
+      <TouchableOpacity style = {{padding: 10}} onPress={() => handleEnterFocus()} testID="enter-button">
+        <Text style={{fontFamily: 'spacemono-bold', color: '#9AC791', fontSize: 15}}>Enter</Text>
+      </TouchableOpacity>
       
       <Modal
           visible={showModal}
@@ -61,34 +105,19 @@ export default function FocusScreen({navigation}) {
           testID="modal-component"
         >
           <View style={styles.modalContainer}>
+
+            <CountDownTimer duration={min > 0 ? min * 60 : 15 * 60} closeModal={() => closeModal()}/> 
             
-            <Text style ={{fontFamily: 'spacemono', padding: 10}}>Number of mins...</Text>
-            <SelectList
-              setSelected={(val) => setMin(val)}
-              data = {minIntervals}
-              save = 'value'
-              boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 150, paddingTop: 7, paddingLeft: 15}}
-              searchPlaceholder='min'
-              searchicon = {<Ionicons name="alarm" color='black' paddingRight={5} size={15}/>}
-              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: 'black'}}
-              label = "Min"
-              dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
-            />
 
             <View style={{padding: 15}}>
-              <TouchableOpacity onPress={() => setShowModal(false)} testID= 'done-button'>
-                <Text style={{fontFamily: 'spacemono-bold', color: '#9AC791'}}>Done</Text>
+              <TouchableOpacity onPress={() => handleExitFocus()} testID= 'exit-button'>
+                <Text style={{fontFamily: 'spacemono-bold', color: '#9AC791', fontSize: 15}}>Exit</Text>
               </TouchableOpacity>
             </View>
 
           </View>
         </Modal>
-
-      <View style={{paddingBottom: 300}}>
         
-        <CountDownTimer duration={min > 0 ? min * 60 : 15 * 60}/> 
-         
-      </View>
     </SafeAreaView>
   );
 }
