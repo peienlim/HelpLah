@@ -1,11 +1,13 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {Text, TouchableOpacity, StyleSheet, View, Animated, Easing} from 'react-native';
+import {Text, TouchableOpacity, StyleSheet, View, Animated, Easing, Alert} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
+import { useNavigation } from '@react-navigation/native';
 
-const CountDownTimer = ({duration}) => { // duration units is in seconds
+const CountDownTimer = ({duration, closeModal}) => { // duration units is in seconds
     const [time, setTime] = useState(duration); //duration should be in seconds
     const [isActive, setIsActive] = useState(false);
+    const navigation = useNavigation();
 
  /*    useEffect(() => {
         // Use timerDuration as the initial value
@@ -37,8 +39,18 @@ const CountDownTimer = ({duration}) => { // duration units is in seconds
             setTime(prevTime => {
               if (prevTime <= 1) {
                 // Pomodoro timer is completed
-                clearInterval(interval);
-                setIsActive(false);
+                Alert.alert("You've completed a focus session!", undefined, [
+                    {
+                      text: 'OK',
+                      onPress: () => {
+                        clearInterval(interval);
+                        setIsActive(false);
+                        if (closeModal && typeof closeModal === 'function') {
+                            closeModal(); // Close the modal
+                        }
+                      },
+                    },
+                  ]);
                 return duration;
               }
               return prevTime - 1;
@@ -47,7 +59,7 @@ const CountDownTimer = ({duration}) => { // duration units is in seconds
         }
       
         return () => clearInterval(interval);
-      }, [isActive, time, duration]);
+      }, [isActive, time, duration, closeModal]);
       
 
     const formatTime = (totalSeconds) => {

@@ -5,12 +5,12 @@ import CountDownTimer from '../components/countdownTimer';
 
 describe("Focus Screen", () => {
 
-    test('renders "Select Time" button that opens the modal', () => {
+    test('renders "Enter" button that opens the modal', () => {
         // Render the focus screen component
         const { getByText, getByTestId } = render(<FocusScreen />);
         
         // Find the "Select-Time" button and simulate a press event
-        const selectTimeButton = getByTestId('select-time-button');
+        const selectTimeButton = getByTestId('enter-button');
         fireEvent.press(selectTimeButton);
         
         // Assert that the modal is visible

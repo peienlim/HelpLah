@@ -136,6 +136,16 @@ export default function DailyView() {
     ]);
   };
 
+  const navigation = useNavigation();
+  const navigateToHomeScreen = () => {
+    navigation.navigate('FocusScreen');
+  };  
+
+  const closeModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+
 
   return (
       <View style={styles.dailyview}>
@@ -187,7 +197,7 @@ export default function DailyView() {
             </View>
 
             <View style={{paddingBottom: 400, alignItems: 'center', justifyContent: 'center'}}>
-              <CountDownTimer duration={modalEventTime > 0 ? modalEventTime/1000 : 0}></CountDownTimer>
+              <CountDownTimer duration={modalEventTime > 0 ? modalEventTime/1000 : 0} closeModal={closeModal}></CountDownTimer>
             </View>
           </SafeAreaView>
 
