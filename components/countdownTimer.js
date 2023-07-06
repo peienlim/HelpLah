@@ -9,28 +9,6 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
     const [isActive, setIsActive] = useState(false);
     const navigation = useNavigation();
 
- /*    useEffect(() => {
-        // Use timerDuration as the initial value
-        setTime(duration);
-      }, [duration]);
-
-    useEffect(() => {
-        let interval = null;
-
-        if (isActive && time > 0) {
-        interval = setInterval(() => {
-            setTime((prevTime) => prevTime - 1);
-        }, 1000);
-        } else if (isActive && time === 0) {
-        // Pomodoro timer is completed
-        clearInterval(interval);
-        setTime(duration);
-        setIsActive(false);
-        }
-
-        return () => clearInterval(interval);
-    }, [isActive, time]); */
-
     useEffect(() => {
         let interval = null;
       
@@ -73,14 +51,14 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
         setIsActive(true);
     };
 
-    const stopTimer = () => {
+    /* const stopTimer = () => {
         setIsActive(false);
     };
 
     const resetTimer = () => {
         setIsActive(false);
         setTime(duration);
-    };
+    }; */
 
     return (
         <View style={styles.background}>
@@ -100,17 +78,17 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
                     </TouchableOpacity>
                 </View>
 
-                <View style={{padding: 10}}>
+                {/* <View style={{padding: 10}}>
                     <TouchableOpacity style={styles.button} onPress={stopTimer}>
                         <Text style={{fontFamily:'spacemono-bold'}}>Pause</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
-                <View style={{padding: 10}}>
+                {/* <View style={{padding: 10}}>
                     <TouchableOpacity style={styles.button} onPress={resetTimer}>
                         <Text style={{fontFamily:'spacemono-bold'}}>Reset</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
             </View>
         </View>
     );

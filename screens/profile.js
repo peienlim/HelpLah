@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert, View } from 'react-native';
+import { Button, StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert, View, PermissionsAndroid, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { getAuth, signOut } from "firebase/auth";
@@ -15,6 +15,7 @@ import { event } from 'react-native-reanimated';
 
 import { generateUUID } from '../hook/generateUUID';
 import { getMultiSectionDigitalClockUtilityClass } from '@mui/x-date-pickers';
+
 
 export default function ProfileScreen({navigation}) {
 
@@ -268,6 +269,7 @@ export default function ProfileScreen({navigation}) {
   // handle selection of ics file that has been downloaded from nusmods by user
   const pickDoc = async () => {
     try {
+
       const file = await DocumentPicker.getDocumentAsync({
         type: 'text/calendar',
       })
@@ -277,36 +279,44 @@ export default function ProfileScreen({navigation}) {
       } 
 
       console.log('new');
+      let fileContents;
 
-      const fileContents = await FileSystem.readAsStringAsync(file.uri);
+      if (Platform.OS === "android") {
+        const response = await fetch(file.uri);
+        fileContents = await response.text();
+      } else {
+        fileContents = await FileSystem.readAsStringAsync(file.uri);
+      }
+
       console.log(fileContents);
 
-      try {
-        const ev = parseICS(fileContents);
-        // console.log('ev: ', ev);
+        try {
+          const ev = parseICS(fileContents);
+          // console.log('ev: ', ev);
 
-        for (const mod of ev) {
-          const name = mod.summary;
-          const location = mod.location; 
-          const dtstart = mod.dtstart;
-          const dtend = mod.dtend;
-          const rrule = mod.rrule;
-          const exdates = mod.exdates;
+          for (const mod of ev) {
+            const name = mod.summary;
+            const location = mod.location; 
+            const dtstart = mod.dtstart;
+            const dtend = mod.dtend;
+            const rrule = mod.rrule;
+            const exdates = mod.exdates;
 
-          await handleClassEventCreation(name, dtstart, dtend, rrule, exdates);
-          console.log('next');
-        };
+            await handleClassEventCreation(name, dtstart, dtend, rrule, exdates);
+            console.log('next');
+          };
 
-        return;
+          return;
 
-      } catch (error) {
-        console.log('Error parsing ICS file: ', error.message);
-      }
-     
+        } catch (error) {
+          console.log('Error parsing ICS file: ', error.message);
+        }
+        
     } catch (error) {
       Alert.alert('Something went wrong: ', error.message); 
     }
-  } 
+  };
+
 
   return (
       <SafeAreaView style={styles.background}>

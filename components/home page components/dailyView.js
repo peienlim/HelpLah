@@ -182,25 +182,21 @@ export default function DailyView() {
         animationType="slide"
         transparent={false}
         visible={modalVisible}>
-          <SafeAreaView style={{alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: StatusBar.currentHeight}}>
+          <View style={{alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: StatusBar.currentHeight}}>
 
-            <View style={{paddingTop: 190,}}>
-
-              <TouchableOpacity onPress={() => handleExitFocus()} style={{paddingRight: 270, paddingBottom: 150, flexDirection: 'row'}}>
-                <Ionicons name='arrow-back-outline' color='grey' size={20}/>
-                <Text style={{fontSize: 15, fontFamily: 'spacemono', color: 'grey'}}> Exit</Text>
-              </TouchableOpacity>
-
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={styles.eventText}>{modalEvent ? modalEvent.description : "noevent"}</Text>
-              </View>
+            <View style={{alignItems: 'center', justifyContent: 'center', paddingTop: 190}}>
+              <Text style={styles.eventText}>{modalEvent ? modalEvent.description : "noevent"}</Text>
             </View>
 
-            <View style={{paddingBottom: 400, alignItems: 'center', justifyContent: 'center'}}>
+            <View style={{paddingBottom: 300, alignItems: 'center', justifyContent: 'center'}}>
               <CountDownTimer duration={modalEventTime > 0 ? modalEventTime/1000 : 0} closeModal={closeModal}></CountDownTimer>
-            </View>
-          </SafeAreaView>
 
+              <TouchableOpacity onPress={() => handleExitFocus()} testID= 'exit-button'>
+                <Text style={{fontFamily: 'spacemono-bold', color: '#9AC791', fontSize: 15}}>Exit</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
       </Modal>
     </View>
   );
