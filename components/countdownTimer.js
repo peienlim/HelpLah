@@ -2,12 +2,12 @@ import React, {useEffect, useState, useRef} from 'react';
 import {Text, TouchableOpacity, StyleSheet, View, Animated, Easing, Alert} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
-import { useNavigation } from '@react-navigation/native';
+//import { useNavigation } from '@react-navigation/native';
 
 const CountDownTimer = ({duration, closeModal}) => { // duration units is in seconds
     const [time, setTime] = useState(duration); //duration should be in seconds
     const [isActive, setIsActive] = useState(false);
-    const navigation = useNavigation();
+    //const navigation = useNavigation();
 
     useEffect(() => {
         let interval = null;
@@ -73,7 +73,7 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
 
             <View style={{flexDirection: "row", paddingTop: 25}}>
                 <View style={{padding: 10}}>
-                    <TouchableOpacity style={styles.button} onPress={startTimer}>
+                    <TouchableOpacity style={styles.button} onPress={startTimer} testID= 'start-button'>
                         <Text style={{fontFamily:'spacemono-bold'}}>Start</Text>
                     </TouchableOpacity>
                 </View>
