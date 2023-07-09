@@ -76,7 +76,7 @@ export default function FocusScreen({navigation}) {
 
       <Ionicons name="timer" color='#9AC791' size={30} padding={10}/>
 
-      <View style ={{padding: 25, }}>
+      <View style ={{padding: 25, }} testID='select-list'>
         <Text style ={{fontFamily: 'spacemono', padding: 10, justifyContent: 'center'}}>Select Time...</Text>
               <SelectList
                 setSelected={(val) => setMin(val)}
@@ -103,13 +103,13 @@ export default function FocusScreen({navigation}) {
           animation='slide'
           testID="modal-component"
         >
-          <View style={styles.modalContainer}>
+          <View style={styles.modalContainer} testID="countdown-timer">
 
             <CountDownTimer duration={min > 0 ? min * 60 : 15 * 60} closeModal={() => closeModal()}/> 
             
 
             <View style={{padding: 15}}>
-              <TouchableOpacity onPress={() => handleExitFocus()} testID= 'exit-button'>
+              <TouchableOpacity onPress={() => handleExitFocus()} testID='exit-button'>
                 <Text style={{fontFamily: 'spacemono-bold', color: '#9AC791', fontSize: 15}}>Exit</Text>
               </TouchableOpacity>
             </View>
