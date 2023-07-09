@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 export default function Event({ colour, description }) {
   return (
-      <View style={[styles.container, { backgroundColor: colour }]}>
+      <View style={[styles.container, { backgroundColor: colour }]} testID='event-container'>
         <Text style={styles.event}>{description}</Text>
       </View>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import FocusScreen from './focus';
 import CountDownTimer from '../components/countdownTimer';
+import {SelectList} from 'react-native-dropdown-select-list';
 
 describe("Focus Screen", () => {
 
@@ -17,5 +18,6 @@ describe("Focus Screen", () => {
         const modalComponent = getByTestId('modal-component');
         expect(modalComponent).toBeTruthy();
     });
-    
 });
+
+
