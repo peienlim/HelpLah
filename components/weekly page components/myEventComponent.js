@@ -1,6 +1,5 @@
 import React from 'react';
 import { Text } from 'react-native';
-import WeekView from 'react-native-week-view';
 
 const MyEventComponent = ({ event }) => (
   <>
