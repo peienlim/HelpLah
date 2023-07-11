@@ -59,6 +59,8 @@ export default function WeeklyScreen({navigation}) {
           description: event.description,
           category: event.category,
           completed: event.completed,
+          nusmods: event.nusmods,
+          disableDrag: event.nusmods, 
         }));
         setMyEvents(transformedEvents);
         //console.log(myEvents);

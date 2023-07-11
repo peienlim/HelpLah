@@ -110,6 +110,7 @@ export default function AddEvent({navigation}) {
           category: category,
           colour: selectedColour,
           completed: false, 
+          nusmods: false, 
         });
         await navigation.goBack();
       } catch(error) {

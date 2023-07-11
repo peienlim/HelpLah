@@ -28,6 +28,7 @@ export const handleDragEvent = (event, newStartDate, newEndDate) => {
                 colour: event.color,
                 category: event.category,
                 completed: event.completed,
+                nusmods: event.nusmods,
             });
         } catch (error) {
             console.log(error);
