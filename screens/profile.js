@@ -5,16 +5,18 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { getAuth, signOut } from "firebase/auth";
 
 import { db } from '../firebaseConfigDB';
-import { collection, query, where, getDocs, setDoc, doc, connectFirestoreEmulator } from "firebase/firestore";
+import { collection, query, where, getDocs, setDoc, doc, onSnapshot, deleteDoc } from "firebase/firestore";
 
 import * as DocumentPicker from 'expo-document-picker';
 import { RRule, RRuleSet, datetime, rrulestr } from 'rrule';
 import * as FileSystem from 'expo-file-system';
 import moment from 'moment-timezone';
-import { event } from 'react-native-reanimated';
+import { diff, event } from 'react-native-reanimated';
 
 import { generateUUID } from '../hook/generateUUID';
 import { getMultiSectionDigitalClockUtilityClass } from '@mui/x-date-pickers';
+import { ActivityIndicator } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 export default function ProfileScreen({navigation}) {
@@ -23,6 +25,13 @@ export default function ProfileScreen({navigation}) {
   const userEmail = auth.currentUser.email;
 
   const [userData, setUserData] = useState({});
+  const [loading, setLoading] = useState(false);
+  //const [uploadComplete, setUploadComplete] = useState(false);
+  const [mods, setMods] = useState({});
+  //const [modsUploaded, setModsUploaded] = useState(false);
+  const [uploadedBefore, setUploadedBefore] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  //const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   // Function to retrieve user's name from firestore using their unique email address
   const getUserInfo = async () => {
@@ -190,7 +199,7 @@ export default function ProfileScreen({navigation}) {
   };
 
   // helper function to process and upload classes/exams from nusmods tt to our database
-  async function handleClassEventCreation(name, dtstart, dtend, rrule, exdates) {
+  async function handleClassEventCreation(name, moduleName, dtstart, dtend, rrule, exdates) {
 
     // class type events: lectures, tutorials, recitations etc with recurring dates 
     if (exdates.length > 0 && rrule.length > 0) {
@@ -227,6 +236,8 @@ export default function ProfileScreen({navigation}) {
             category: category,
             colour: '#9AC791', 
             completed: false, 
+            nusmods: true,
+            moduleName: moduleName,
           });
 
         } catch(error) {
@@ -257,6 +268,8 @@ export default function ProfileScreen({navigation}) {
           category: category,
           colour: '#E5E5E5', 
           completed: false, 
+          nusmods: true, 
+          moduleName: moduleName, 
         });
         
       } catch(error) {
@@ -266,8 +279,20 @@ export default function ProfileScreen({navigation}) {
 
   }
 
+  const getModuleName = (name) => {
+    let slicedName = name;
+    if (name.startsWith(' ')) {
+      slicedName = name.slice(1);
+    } 
+    const modName = slicedName.substring(0, slicedName.indexOf(' '));
+    console.log('modName: ', modName);
+
+    return modName;
+  }
+
   // handle selection of ics file that has been downloaded from nusmods by user
   const pickDoc = async () => {
+
     try {
 
       const file = await DocumentPicker.getDocumentAsync({
@@ -279,6 +304,8 @@ export default function ProfileScreen({navigation}) {
       } 
 
       console.log('new');
+      setLoading(true);
+      
       let fileContents;
 
       if (Platform.OS === "android") {
@@ -294,53 +321,178 @@ export default function ProfileScreen({navigation}) {
           const ev = parseICS(fileContents);
           // console.log('ev: ', ev);
 
-          for (const mod of ev) {
-            const name = mod.summary;
-            const location = mod.location; 
-            const dtstart = mod.dtstart;
-            const dtend = mod.dtend;
-            const rrule = mod.rrule;
-            const exdates = mod.exdates;
 
-            await handleClassEventCreation(name, dtstart, dtend, rrule, exdates);
-            console.log('next');
-          };
+        for (const mod of ev) {
+          const name = mod.summary;
+          const moduleName = getModuleName(mod.summary);
+          console.log(module);
+          const location = mod.location; 
+          const dtstart = mod.dtstart;
+          const dtend = mod.dtend;
+          const rrule = mod.rrule;
+          const exdates = mod.exdates;
 
-          return;
-
-        } catch (error) {
-          console.log('Error parsing ICS file: ', error.message);
-        }
+          await handleClassEventCreation(name, moduleName, dtstart, dtend, rrule, exdates);
+          console.log('next');
+        };
         
+        setLoading(false);
+        return;
+
+      } catch (error) {
+        setLoading(false);
+        Alert.alert('Error processing file, please try again.');
+        console.log('Error parsing ICS file: ', error);
+      }
+
     } catch (error) {
       Alert.alert('Something went wrong: ', error.message); 
     }
-  };
 
+  }
 
+  // deletes events in database with nusmods field set to true (uploaded and not created by user)
+  const handleDeleteTimetable= async () => {
+
+    async function handleDeleteEvent() {
+      try {
+        setDeleting(true);
+        const auth = getAuth();
+        const userEmail = auth.currentUser.email;
+
+        const eventsRef = collection(db, 'users', userEmail, 'events');
+        const q = query(eventsRef, where('nusmods', '==', true));
+
+        const querySnapshot = await getDocs(q);
+        const deletePromises = querySnapshot.docs.map((docu) => {
+            const docRef = doc(db, 'users', userEmail, 'events', docu.id);
+            return deleteDoc(docRef); 
+        });
+
+        await Promise.all(deletePromises);
+
+        //setDeleteSuccess(true);
+        setUploadedBefore(false);
+        
+      } catch (error) {
+        Alert.alert('Something went wrong: ', error);
+        console.log(error);
+
+      } finally {
+        console.log('done finally');
+        setDeleting(false);
+      }
+    }
+
+    const alertPopUp = () => {
+      Alert.alert("Delete previous timetable", "Are you sure you want to delete? (you will be able to upload a new timetable after successful deletion)", [
+          {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel'),
+          },
+          {
+              text: 'Confirm',
+              onPress: handleDeleteEvent,
+          }
+      ]);
+    };
+    alertPopUp();
+  }
+
+  // retrieve data from realtime database
+  const getMods = () => {
+    try {
+      const eventsRef = collection(db, 'users', userEmail, 'events');
+  
+      const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+        const eventsData = querySnapshot.docs.map((doc) => doc.data());
+        const nusmodsEvs = eventsData.filter((event) => event.nusmods);
+        const moduleNameArr = nusmodsEvs.map((event) => event.moduleName);
+        //console.log(moduleNameArr);
+
+        let diffMods = [];
+        moduleNameArr.forEach((mod) => {
+          if (!diffMods.includes(mod)) {
+            diffMods.push(mod);
+          }
+        });
+
+        //console.log(diffMods);
+        setMods(diffMods); 
+
+        if (diffMods.length > 0) {
+          setUploadedBefore(true);
+        }
+
+      });
+  
+      // Return an unsubscribe function to stop listening for updates
+      return unsubscribe;
+    } catch (error) {
+      console.log(error);
+    }
+  };  
+
+  useEffect(() => {
+    getMods();
+  }, []);
+  
   return (
       <SafeAreaView style={styles.background}>
         
-        <Text style={{fontFamily:'spacemono-bold', fontSize: 25, paddingBottom: 35, paddingRight: 200}}>Profile</Text>
+        <View style={styles.nameEmailContainer}>
+          <Text style = {{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 15}}>Name and Email:</Text>
+          <View style={styles.inputButton}> 
+            <Ionicons name='happy-outline' color='black' size={15} paddingRight={10} paddingTop={3}/>
+            <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13, color: 'grey'}} >{userData.name}</Text>         
+          </View>
+
+          <View style={styles.inputButton}> 
+            <Ionicons name='mail-outline' color='black' size={15} paddingRight={10} paddingTop={3}/>
+            <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13, color: 'grey'}} >{userEmail}</Text>
+          </View>
+        </View>
+
+        {uploadedBefore && Object.keys(mods).length > 0 && (
+          <View style={styles.mod}>
+            <Text style={{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 10}}>Mods: </Text>
+            {Object.keys(mods).map((key) => (
+              <View key={key}> 
+                <View style={styles.modContainer}>
+                  <Text style={styles.modText}>{mods[key]}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
         
-        <View style={styles.inputButton}> 
-          <Ionicons name='happy-outline' color='black' size={15} paddingRight={10} paddingTop={3}/>
-          <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13, color: 'grey'}} >{userData.name}</Text>         
-        </View>
+        {!loading && !deleting && (
+          <View style={styles.nusmodsButton}> 
+            <Button 
+              title={!uploadedBefore ? "Upload NUSMods timetable" : 'Delete uploaded NUSMods timetable'} 
+              onPress={!uploadedBefore ? pickDoc : handleDeleteTimetable} 
+            />
+          </View>
+        )}
+     
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#9AC791" />
+            <Text style={styles.loadingText}>Uploading...</Text>
+          </View>
+        )}
 
-        <View style={styles.inputButton}> 
-          <Ionicons name='mail-outline' color='black' size={15} paddingRight={10} paddingTop={3}/>
-          <Text style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13, color: 'grey'}} >{userEmail}</Text>
-        </View>
-
-        <View style={{paddingTop: 50}}>
+        {deleting && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#ffb6b3" />
+            <Text style={styles.loadingText}>Deleting...</Text>
+          </View>
+        )}
+ 
+        <View style={{paddingTop: 20, flex: 1}}>
           <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton} >
               <Text style={{fontFamily: 'spacemono-bold', fontSize:13}}>Sign Out</Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={{paddingTop:20}}> 
-          <Button title="Upload NUSMods timetable" onPress={pickDoc} />
         </View>
 
       </SafeAreaView>
@@ -353,6 +505,19 @@ const styles = StyleSheet.create({
     flex: 1, 
     alignItems: 'center', 
     justifyContent: 'center',
+  },
+
+  nameEmailContainerNM: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    //backgroundColor: 'blue',
+  },
+
+  nameEmailContainer: {
+    flex: 2,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
   },
 
   signOutButton: {
@@ -377,4 +542,58 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 
-})
+  mod: {
+    paddingTop: 20,
+    flex: 2
+  },
+
+  modContainer: {
+    backgroundColor: '#E5E5E5', 
+    height: 35,
+    margin: 5,
+    borderWidth: 0,
+    padding: 10,
+    borderColor: '#E5E5E5',
+    width: 300,
+    borderRadius: 10,
+    flexDirection: 'row',
+  },
+  
+  modText: {
+    fontFamily: 'spacemono',
+    fontSize: 13,
+    color: 'grey',
+  },
+
+  nusmodsButtonNM: {
+    paddingTop: 20,
+  },
+
+  nusmodsButton: {
+    paddingTop: 30
+  },
+
+  loadingContainer: {
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontFamily: 'spacemono',
+    fontSize: 15,
+    color: 'grey',
+  },
+
+  completedContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  completedText: {
+    marginTop: 10,
+    fontFamily: 'spacemono',
+    fontSize: 15,
+    color: '#9AC791',
+  },
+
+});
+
