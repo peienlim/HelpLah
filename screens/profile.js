@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert, View } from 'react-native';
+import { Button, StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert, View, PermissionsAndroid, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { getAuth, signOut } from "firebase/auth";
@@ -17,6 +17,7 @@ import { generateUUID } from '../hook/generateUUID';
 import { getMultiSectionDigitalClockUtilityClass } from '@mui/x-date-pickers';
 import { ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+
 
 export default function ProfileScreen({navigation}) {
 
@@ -45,7 +46,7 @@ export default function ProfileScreen({navigation}) {
         })
       });
     } catch (error) {
-      console.log('Error retrieving user info: ', error);
+      console.log('Error retrieving user info: ', error.message);
     }
 
   };
@@ -293,6 +294,7 @@ export default function ProfileScreen({navigation}) {
   const pickDoc = async () => {
 
     try {
+
       const file = await DocumentPicker.getDocumentAsync({
         type: 'text/calendar',
       })
@@ -302,15 +304,23 @@ export default function ProfileScreen({navigation}) {
       } 
 
       console.log('new');
-
       setLoading(true);
+      
+      let fileContents;
 
-      const fileContents = await FileSystem.readAsStringAsync(file.uri);
+      if (Platform.OS === "android") {
+        const response = await fetch(file.uri);
+        fileContents = await response.text();
+      } else {
+        fileContents = await FileSystem.readAsStringAsync(file.uri);
+      }
+
       console.log(fileContents);
 
-      try {
-        const ev = parseICS(fileContents);
-        // console.log('ev: ', ev);
+        try {
+          const ev = parseICS(fileContents);
+          // console.log('ev: ', ev);
+
 
         for (const mod of ev) {
           const name = mod.summary;
@@ -327,9 +337,6 @@ export default function ProfileScreen({navigation}) {
         };
         
         setLoading(false);
-        //setUploadComplete(true);
-        //setModsUploaded(true);
-
         return;
 
       } catch (error) {
@@ -337,10 +344,11 @@ export default function ProfileScreen({navigation}) {
         Alert.alert('Error processing file, please try again.');
         console.log('Error parsing ICS file: ', error);
       }
-     
+
     } catch (error) {
-      Alert.alert('Something went wrong: ', error); 
+      Alert.alert('Something went wrong: ', error.message); 
     }
+
   }
 
   // deletes events in database with nusmods field set to true (uploaded and not created by user)

@@ -4,7 +4,7 @@ import React, {useState} from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {SelectList} from 'react-native-dropdown-select-list'
+import {SelectList} from 'react-native-dropdown-select-list';
 
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
