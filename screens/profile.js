@@ -440,7 +440,7 @@ export default function ProfileScreen({navigation}) {
   return (
       <SafeAreaView style={styles.background}>
         
-        <View style={styles.nameEmailContainer}>
+        <View style={uploadedBefore ? styles.nameEmailContainerNM : styles.nameEmailContainer}>
           <Text style = {{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 15}}>Name and Email:</Text>
           <View style={styles.inputButton}> 
             <Ionicons name='happy-outline' color='black' size={15} paddingRight={10} paddingTop={3}/>
@@ -453,43 +453,45 @@ export default function ProfileScreen({navigation}) {
           </View>
         </View>
 
-        {uploadedBefore && Object.keys(mods).length > 0 && (
-          <View style={styles.mod}>
-            <Text style={{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 10}}>Mods: </Text>
-            {Object.keys(mods).map((key) => (
-              <View key={key}> 
-                <View style={styles.modContainer}>
-                  <Text style={styles.modText}>{mods[key]}</Text>
+        <View style={uploadedBefore ? {flex:2, justifyContent: 'flex-start'} : {}}>
+          {uploadedBefore && Object.keys(mods).length > 0 && (
+            <View style={styles.mod}>
+              <Text style={{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 10}}>Mods: </Text> 
+              {Object.keys(mods).map((key) => (
+                <View key={key}> 
+                  <View style={styles.modContainer}>
+                    <Text style={styles.modText}>{mods[key]}</Text>
+                  </View>
                 </View>
-              </View>
-            ))}
-          </View>
-        )}
-        
-        {!loading && !deleting && (
-          <View style={styles.nusmodsButton}> 
-            <Button 
-              title={!uploadedBefore ? "Upload NUSMods timetable" : 'Delete uploaded NUSMods timetable'} 
-              onPress={!uploadedBefore ? pickDoc : handleDeleteTimetable} 
-            />
-          </View>
-        )}
-     
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#9AC791" />
-            <Text style={styles.loadingText}>Uploading...</Text>
-          </View>
-        )}
+              ))}
+            </View>
+          )}
+          
+          {!loading && !deleting && (
+            <View style={styles.nusmodsButton}> 
+              <Button 
+                title={!uploadedBefore ? "Upload NUSMods timetable" : 'Delete uploaded NUSMods timetable'} 
+                onPress={!uploadedBefore ? pickDoc : handleDeleteTimetable} 
+              />
+            </View>
+          )}
+      
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#9AC791" />
+              <Text style={styles.loadingText}>Uploading...</Text>
+            </View>
+          )}
 
-        {deleting && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#ffb6b3" />
-            <Text style={styles.loadingText}>Deleting...</Text>
-          </View>
-        )}
+          {deleting && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#ffb6b3" />
+              <Text style={styles.loadingText}>Deleting...</Text>
+            </View>
+          )}
+        </View>
  
-        <View style={{paddingTop: 20, flex: 1}}>
+        <View style={uploadedBefore ? {paddingTop: 30, flex: 0.3} : {paddingTop: 20, flex: 1}}>
           <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton} >
               <Text style={{fontFamily: 'spacemono-bold', fontSize:13}}>Sign Out</Text>
           </TouchableOpacity>
@@ -570,7 +572,7 @@ const styles = StyleSheet.create({
   },
 
   nusmodsButton: {
-    paddingTop: 30
+    paddingTop: 20,
   },
 
   loadingContainer: {
