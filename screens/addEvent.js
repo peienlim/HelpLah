@@ -159,7 +159,7 @@ export default function AddEvent({navigation}) {
         onRequestClose={()=> navigation.goBack()} 
         statusBarTranslucent={false} 
         transparent={false}>
-  
+
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
 
             <Text style={{fontFamily:'spacemono-bold', fontSize: 25, paddingBottom: 35, paddingRight: 200}}>Add Task</Text>
