@@ -3,7 +3,9 @@ import { render } from '@testing-library/react-native';
 import MyEventComponent from './myEventComponent';
 
 describe('MyEventComponent', () => {
+  
   test('renders correctly', () => {
+
     const event = {
       description: 'Sample Event',
       startDate: new Date(2023, 6, 6, 10, 0),

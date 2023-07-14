@@ -30,7 +30,7 @@ describe("Focus Screen", () => {
         const timerText = getByText('FOCUS TIMER');
         expect(timerText).toBeDefined();
 
-        // Assert the presence of countdown timer
+        // Assert the presence of the select time
         const selectList = getByTestId("select-list");
         expect(selectList).toBeDefined();
     });

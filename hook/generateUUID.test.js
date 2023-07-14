@@ -10,6 +10,19 @@ describe('generateUUID', () => {
     expect(uuid).toHaveLength(digits);
     expect(typeof uuid).toBe('string');
   });
+
+  test('generates a unique ID', () => {
+    const digits = 8;
+    const iterations = 1000;
+    const generatedUUIDs = new Set();
+  
+    for (let i = 0; i < iterations; i++) {
+      const uuid = generateUUID(digits);
+      generatedUUIDs.add(uuid);
+    }
+  
+    expect(generatedUUIDs.size).toBe(iterations);
+  });
 });
 
 
