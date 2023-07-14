@@ -1,14 +1,14 @@
 import { View, Modal, Text, TouchableOpacity, StyleSheet, TextInput, Button, Platform, SafeAreaView, Alert } from 'react-native';
-import React, {useState} from 'react'
+import React, { useState, useEffect } from 'react'
  
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {SelectList} from 'react-native-dropdown-select-list';
+import { SelectList } from 'react-native-dropdown-select-list';
 
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, setDoc, doc, onSnapshot } from "firebase/firestore";
 
 import { generateUUID } from '../hook/generateUUID';
 
@@ -25,6 +25,8 @@ export default function AddEvent({navigation}) {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
 
+    const [uploadedBefore, setUploadedBefore] = useState(false);
+
     const [category, setCategory] = useState("task");
     const categories = [
       {key: '1', value: 'class'},
@@ -34,6 +36,7 @@ export default function AddEvent({navigation}) {
     ]
 
     const [selectedColour, setSelectedColour] = useState("grey");
+    const [showColourPicker, setShowColourPicker] = useState(false);
      
     const colours = [
       {key: '1', value: 'red'},
@@ -87,6 +90,59 @@ export default function AddEvent({navigation}) {
       }
     }
 
+    const [mod, setMod] = useState({});
+    const [modules, setModules] = useState({});
+    const [selectedMod, setSelectedMod] = useState('default');
+
+    // get modules that user has uploaded 
+    const getMods = () => {
+      try {
+        modsRef = collection(db, 'users', userEmail, 'modules') 
+        
+        const unsubscribe = onSnapshot(modsRef, (querySnapshot) => {
+          const modData = querySnapshot.docs.map((doc) => doc.data());
+          const moduleData = modData.map((entry, index) => ({
+            key: index + 1,
+            modName: entry.mod,
+            colour: entry.colour,
+            id: entry.id
+          })); 
+  
+          if (moduleData.length > 0) {
+            setUploadedBefore(true);
+            setShowColourPicker(false);
+          }
+          
+          setMod(moduleData);
+          
+          modsKVPairs = getModKVPair(moduleData);
+          setModules(modsKVPairs);
+  
+        });
+        
+        return unsubscribe;
+  
+      } catch (error) {
+        Alert.alert('Something went wrong: ', error);
+        console.log(error);
+      }
+    }
+    
+    useEffect(() => {
+      getMods();
+    }, []);
+
+    // get module kv pair for modules drop down bar 
+    const getModKVPair = (moduleData) => {
+      const updatedModules = moduleData.map((entry) => ({
+        key: entry.key,
+        value: entry.modName
+      }));
+
+      updatedModules.push({ key: (moduleData.length + 1).toString(), value: 'others'});
+      return updatedModules;
+    }
+
     // adds Event Data into a subcollection of users data
     async function handleAddEvent() {
       if (descr === "") {
@@ -111,6 +167,7 @@ export default function AddEvent({navigation}) {
           colour: selectedColour,
           completed: false, 
           nusmods: false, 
+          module: selectedMod,
         });
         await navigation.goBack();
       } catch(error) {
@@ -118,6 +175,27 @@ export default function AddEvent({navigation}) {
       }
     }
 
+    // helper function to set selected colour based on module chosen
+    const setModAndColour = (modd) => {
+      setSelectedMod(modd);
+      const moduleEntry = mod.find((entry) => entry.modName === modd);
+
+      if (moduleEntry) {
+        setSelectedColour(moduleEntry.colour);
+        return;
+      }
+
+      // to open colour picker for user to select colour 
+      if (modd === 'others') {
+        setShowColourPicker(true);
+        return;
+      }
+
+      setSelectedColour('grey');
+      return;
+
+    }
+    
     // Set the Start Date 
     const handleSetDate = (event, selectedDate) => {
       const currentDate = selectedDate || date;
@@ -230,19 +308,41 @@ export default function AddEvent({navigation}) {
               dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
             />
 
-            <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Colour...</Text>
-            <SelectList
-              setSelected={(val) => setSelectedColour(mapColorsToHex(val))}
-              data = {colours}
-              save = 'value'
-              boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
-              searchPlaceholder='Select Colour...'
-              searchicon = {<Ionicons name="color-palette" color='black' paddingRight={5} size={15}/>}
-              //defaultOption={{key: '8', value: 'grey'}}
-              inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selectedColour}}
-              label = "Colour..."
-              dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}} 
-            />
+            {uploadedBefore && (
+              <View> 
+                <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Module...</Text>
+                <SelectList
+                  setSelected={(val) => setModAndColour(val)}
+                  data = {modules}
+                  save = 'value'
+                  boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
+                  searchPlaceholder='Select Module...'
+                  searchicon = {<Ionicons name="cube-outline" color='black' paddingRight={5} size={15}/>}
+                  inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: 'black'}}
+                  label = "Module..."
+                  dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}}
+                />
+              </View>
+            )}
+
+            {showColourPicker && (
+              <View>
+                <Text style = {{fontFamily: 'spacemono', color:'#989898', fontSize: 13 }}>Select Colour...</Text>
+                <SelectList
+                  setSelected={(val) => setSelectedColour(mapColorsToHex(val))}
+                  data = {colours}
+                  save = 'value'
+                  boxStyles = {{backgroundColor: '#E5E5E5', height: 40, borderColor: '#E5E5E5', flexDirection: 'row', width: 300, paddingTop: 7, paddingLeft: 15}}
+                  searchPlaceholder='Select Colour...'
+                  searchicon = {<Ionicons name="color-palette" color='black' paddingRight={5} size={15}/>}
+                  //defaultOption={{key: '8', value: 'grey'}}
+                  inputStyles={{fontFamily: 'spacemono', fontSize: 13, color: selectedColour}}
+                  label = "Colour..."
+                  dropdownTextStyles={{fontFamily: 'spacemono', fontSize: 13}} 
+                />
+              </View>
+            )}
+            
 
             <View style={{paddingTop: 50}}>
               <TouchableOpacity style={styles.createButton} onPress={handleAddEvent}>

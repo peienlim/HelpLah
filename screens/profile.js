@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert, View, PermissionsAndroid, Platform } from 'react-native';
+import { Button, StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert, View, Modal, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { getAuth, signOut } from "firebase/auth";
 
 import { db } from '../firebaseConfigDB';
-import { collection, query, where, getDocs, setDoc, doc, onSnapshot, deleteDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, setDoc, doc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
 import * as DocumentPicker from 'expo-document-picker';
 import { RRule, RRuleSet, datetime, rrulestr } from 'rrule';
@@ -17,6 +17,7 @@ import { generateUUID } from '../hook/generateUUID';
 import { getMultiSectionDigitalClockUtilityClass } from '@mui/x-date-pickers';
 import { ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import ColorPicker from 'react-native-wheel-color-picker';
 
 
 export default function ProfileScreen({navigation}) {
@@ -26,12 +27,14 @@ export default function ProfileScreen({navigation}) {
 
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(false);
-  //const [uploadComplete, setUploadComplete] = useState(false);
   const [mods, setMods] = useState({});
-  //const [modsUploaded, setModsUploaded] = useState(false);
   const [uploadedBefore, setUploadedBefore] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  //const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [moduleNames, setModuleNames] = useState({});
+  const [selectedModID, setSelectedModID] = useState();
+  const [showColourPicker, setShowColourPicker] = useState(false);
+
+  let modNames = [];
 
   // Function to retrieve user's name from firestore using their unique email address
   const getUserInfo = async () => {
@@ -198,8 +201,33 @@ export default function ProfileScreen({navigation}) {
     return rs.all();
   };
 
+  // helper function to send module names to firestore 
+  const moduleNameUpload = async (moddd) => {
+    console.log('moduleNameUpload!!!!!');
+    console.log(moddd);
+    for (let i = 0; i < moddd.length; i++) {
+      try {
+        const uniqueID = generateUUID(15);
+        const docRef = doc(db, 'users', userEmail, "modules", uniqueID);
+        await setDoc(docRef, {
+          id: uniqueID,
+          mod: moddd[i],
+          colour: '#E5E5E5',
+        });
+        
+      } catch(error) {
+        console.log(error);
+      }
+    }
+    console.log('complete');
+  }
+
   // helper function to process and upload classes/exams from nusmods tt to our database
   async function handleClassEventCreation(name, moduleName, dtstart, dtend, rrule, exdates) {
+
+    if (!modNames.includes(moduleName)) {
+      modNames.push(moduleName);
+    }
 
     // class type events: lectures, tutorials, recitations etc with recurring dates 
     if (exdates.length > 0 && rrule.length > 0) {
@@ -290,6 +318,7 @@ export default function ProfileScreen({navigation}) {
     return modName;
   }
 
+
   // handle selection of ics file that has been downloaded from nusmods by user
   const pickDoc = async () => {
 
@@ -335,6 +364,11 @@ export default function ProfileScreen({navigation}) {
           await handleClassEventCreation(name, moduleName, dtstart, dtend, rrule, exdates);
           console.log('next');
         };
+
+        console.log(modNames);
+        setModuleNames(modNames);
+        await moduleNameUpload(modNames);
+        //console.log(modNames);
         
         setLoading(false);
         return;
@@ -361,15 +395,24 @@ export default function ProfileScreen({navigation}) {
         const userEmail = auth.currentUser.email;
 
         const eventsRef = collection(db, 'users', userEmail, 'events');
+        const modsRef = collection(db, 'users', userEmail, 'modules'); 
         const q = query(eventsRef, where('nusmods', '==', true));
+        const modsQ = query(modsRef);
 
         const querySnapshot = await getDocs(q);
         const deletePromises = querySnapshot.docs.map((docu) => {
-            const docRef = doc(db, 'users', userEmail, 'events', docu.id);
-            return deleteDoc(docRef); 
+          const docRef = doc(db, 'users', userEmail, 'events', docu.id);
+          return deleteDoc(docRef); 
+        });
+
+        const querySnapshotMods = await getDocs(modsQ);
+        const deletePromisesMods = querySnapshotMods.docs.map((docu) => {
+          const docRef = doc(db, 'users', userEmail, 'modules', docu.id);
+          return deleteDoc(docRef); 
         });
 
         await Promise.all(deletePromises);
+        await Promise.all(deletePromisesMods);
 
         //setDeleteSuccess(true);
         setUploadedBefore(false);
@@ -399,44 +442,51 @@ export default function ProfileScreen({navigation}) {
     alertPopUp();
   }
 
-  // retrieve data from realtime database
   const getMods = () => {
     try {
-      const eventsRef = collection(db, 'users', userEmail, 'events');
-  
-      const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
-        const eventsData = querySnapshot.docs.map((doc) => doc.data());
-        const nusmodsEvs = eventsData.filter((event) => event.nusmods);
-        const moduleNameArr = nusmodsEvs.map((event) => event.moduleName);
-        //console.log(moduleNameArr);
+      modsRef = collection(db, 'users', userEmail, 'modules') 
+      
+      const unsubscribe = onSnapshot(modsRef, (querySnapshot) => {
+        const modData = querySnapshot.docs.map((doc) => doc.data());
+        const moduleData = modData.map((entry) => ({
+          modName: entry.mod,
+          colour: entry.colour,
+          id: entry.id
+        })); 
 
-        let diffMods = [];
-        moduleNameArr.forEach((mod) => {
-          if (!diffMods.includes(mod)) {
-            diffMods.push(mod);
-          }
-        });
-
-        //console.log(diffMods);
-        setMods(diffMods); 
-
-        if (diffMods.length > 0) {
+        if (moduleData.length > 0) {
           setUploadedBefore(true);
         }
 
-      });
-  
-      // Return an unsubscribe function to stop listening for updates
+        setMods(moduleData);
+
+      })
+      
       return unsubscribe;
+
     } catch (error) {
+      Alert.alert('Something went wrong: ', error);
       console.log(error);
     }
-  };  
-
+  }
+  
   useEffect(() => {
     getMods();
   }, []);
   
+  const openColourPicker = (id) => { 
+    console.log('open: ', id);
+    setShowColourPicker(true);
+    setSelectedModID(id);
+  }
+
+  const setColour = (colour) => {
+    const ref = doc(collection(db, 'users', userEmail, 'modules'), selectedModID);
+    updateDoc(ref, {colour: colour});
+    setShowColourPicker(false);
+    return;
+  }
+
   return (
       <SafeAreaView style={styles.background}>
         
@@ -453,19 +503,20 @@ export default function ProfileScreen({navigation}) {
           </View>
         </View>
 
-        <View style={uploadedBefore ? {flex:2, justifyContent: 'flex-start'} : {}}>
+        <View style={uploadedBefore ? (mods.length <= 5 ? {flex: 1.3} : {flex: 2}) : {}}>
           {uploadedBefore && Object.keys(mods).length > 0 && (
             <View style={styles.mod}>
               <Text style={{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 10}}>Mods: </Text> 
               {Object.keys(mods).map((key) => (
                 <View key={key}> 
-                  <View style={styles.modContainer}>
-                    <Text style={styles.modText}>{mods[key]}</Text>
-                  </View>
+                  <TouchableOpacity onPress={() => openColourPicker(mods[key].id)} style={{backgroundColor: mods[key].colour, height: 35, margin: 5, padding: 10, width: 300, borderRadius: 10, flexDirection: 'row'}}>
+                    <Text style={styles.modText}>{mods[key].modName}</Text>
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
           )}
+          
           
           {!loading && !deleting && (
             <View style={styles.nusmodsButton}> 
@@ -489,8 +540,23 @@ export default function ProfileScreen({navigation}) {
               <Text style={styles.loadingText}>Deleting...</Text>
             </View>
           )}
+
+          
         </View>
- 
+
+        {showColourPicker && (
+          <View style={styles.colourPickerPopup}>
+            <ColorPicker
+              //style={{flex: 1}}
+              visible={showColourPicker}
+              onCancel={() => setShowColourPicker(false)}
+              swatchesOnly={true}
+              onColorChangeComplete={setColour}
+              palette={['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF','#AED6F1', '#CCCCFF', '#FADBD8', '#808080']}
+            />
+          </View>
+        )}
+
         <View style={uploadedBefore ? {paddingTop: 30, flex: 0.3} : {paddingTop: 20, flex: 1}}>
           <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton} >
               <Text style={{fontFamily: 'spacemono-bold', fontSize:13}}>Sign Out</Text>
@@ -550,10 +616,8 @@ const styles = StyleSheet.create({
   },
 
   modContainer: {
-    backgroundColor: '#E5E5E5', 
     height: 35,
     margin: 5,
-    borderWidth: 0,
     padding: 10,
     borderColor: '#E5E5E5',
     width: 300,
@@ -567,6 +631,19 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
 
+  colourPickerPopup: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 50,
+    paddingLeft: 15,
+    paddingTop: 50,
+  },
+
   nusmodsButtonNM: {
     paddingTop: 20,
   },
@@ -577,7 +654,7 @@ const styles = StyleSheet.create({
 
   loadingContainer: {
     alignItems: 'center',
-    marginTop: 30,
+    marginTop: 40,
   },
   loadingText: {
     marginTop: 10,
