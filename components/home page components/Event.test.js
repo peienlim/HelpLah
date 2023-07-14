@@ -14,6 +14,6 @@ describe("Event component", () => {
       
         const eventText = getByText(description);
         expect(eventText).toBeTruthy();
-        expect(eventText.props.style).toHaveProperty('fontFamily', 'spacemono');
+        expect(eventText.props.style).toHaveProperty('fontFamily', 'spacemono', 'red');
     });
 });

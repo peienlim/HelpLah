@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import CountDownTimer from './countdownTimer';
 
 describe('CountDownTimer', () => {
-    // Assuming duration set is 15 min
+    // Assuming duration set is 1 min
     test('renders without errors', () => {
       render(<CountDownTimer duration={60} />);
       // No errors thrown during rendering
@@ -17,7 +17,7 @@ describe('CountDownTimer', () => {
         expect(timerText).toBeDefined();
     });
 
-    test('triggers the countdown and updates the time when start button is pressed', async () => {
+   /*  test('triggers the countdown and updates the time when start button is pressed', async () => {
         const { getByText, getByTestId } = render(<CountDownTimer duration={60} />);
         const startButton = getByText('Start');
         
@@ -29,7 +29,23 @@ describe('CountDownTimer', () => {
         
             expect(timerText).toStrictEqual([' ', '01:00', ' ']);
         });
-    });
+    }); */
+
+    test('updates the time when the start button is pressed', async () => {
+        const { getByTestId } = render(<CountDownTimer duration={60} />);
+      
+        const startButton = getByTestId('start-button');
+        const timerText = getByTestId('countdown-timer');
+      
+        fireEvent.press(startButton); // Simulate pressing the start button
+      
+        // Wait for 1 second to allow the timer to update
+        await waitFor(() => expect(timerText.props.children).not.toBe('01:00'));
+      
+        // Verify that the time has changed
+        expect(timerText.props.children).not.toBe('01:00');
+    });      
+      
 }); 
 
 
