@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DrawerStack from './drawerNavigation';
 import WeeklyScreen from '../screens/weekly';
 import FocusScreen from '../screens/focus';
-import CommunityScreen from '../screens/community';
+import StatisticsScreen from '../screens/stats';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View } from 'react-native';
@@ -37,8 +37,8 @@ export default function TabStack() {
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='happy-outline' color={color} size={size} />), }}
       />
       <Tab.Screen 
-          name="CommunityScreen" 
-          component={CommunityScreen}
+          name="StatisticsScreen" 
+          component={StatisticsScreen}
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='people-outline' color={color} size={size} />), }}
       />
     </Tab.Navigator>
