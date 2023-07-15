@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { getAuth, signOut } from "firebase/auth";
 
 import { db } from '../firebaseConfigDB';
-import { collection, query, where, getDocs, setDoc, doc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, setDoc, doc, onSnapshot, deleteDoc, updateDoc, writeBatch } from "firebase/firestore";
 
 import * as DocumentPicker from 'expo-document-picker';
 import { RRule, RRuleSet, datetime, rrulestr } from 'rrule';
@@ -18,7 +18,7 @@ import { getMultiSectionDigitalClockUtilityClass } from '@mui/x-date-pickers';
 import { ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker from 'react-native-wheel-color-picker';
-
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default function ProfileScreen({navigation}) {
 
@@ -32,7 +32,9 @@ export default function ProfileScreen({navigation}) {
   const [deleting, setDeleting] = useState(false);
   const [moduleNames, setModuleNames] = useState({});
   const [selectedModID, setSelectedModID] = useState();
+  const [selectedModName, setSelectedModName] = useState();
   const [showColourPicker, setShowColourPicker] = useState(false);
+  const [loadingColourUpdate, setLoadingColourUpdate] = useState(false);
 
   let modNames = [];
 
@@ -474,17 +476,47 @@ export default function ProfileScreen({navigation}) {
     getMods();
   }, []);
   
-  const openColourPicker = (id) => { 
+  const openColourPicker = (id, modName) => { 
     console.log('open: ', id);
     setShowColourPicker(true);
     setSelectedModID(id);
+    setSelectedModName(modName);
   }
 
-  const setColour = (colour) => {
-    const ref = doc(collection(db, 'users', userEmail, 'modules'), selectedModID);
-    updateDoc(ref, {colour: colour});
-    setShowColourPicker(false);
-    return;
+  const setColour = async (colour) => {
+
+    if (!selectedModID || !selectedModName) {
+      console.error('Selected Mod ID or Mod Name is not set.');
+      return;
+    }
+
+    setLoadingColourUpdate(true);
+
+    try {
+      const ref = doc(collection(db, 'users', userEmail, 'modules'), selectedModID);
+      await updateDoc(ref, {colour: colour});
+
+      const eventsRef = collection(db, 'users', userEmail, 'events');
+      const q = query(eventsRef, where('moduleName', '==', selectedModName));
+
+      const querySnapshot = await getDocs(q);
+      const updatePromises = querySnapshot.docs.map((docu) => {
+        const docRef = doc(db, 'users', userEmail, 'events', docu.id);
+        return updateDoc(docRef, {colour: colour}); 
+      });
+
+      await Promise.all(updatePromises);
+      console.log('updated promises');
+      setLoadingColourUpdate(false);
+
+      setShowColourPicker(false);
+      return;
+    
+    } catch (error) {
+      Alert.alert('something went wrong', error);
+      console.log(error);
+    }
+    
   }
 
   return (
@@ -509,7 +541,7 @@ export default function ProfileScreen({navigation}) {
               <Text style={{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 10}}>Mods: </Text> 
               {Object.keys(mods).map((key) => (
                 <View key={key}> 
-                  <TouchableOpacity onPress={() => openColourPicker(mods[key].id)} style={{backgroundColor: mods[key].colour, height: 35, margin: 5, padding: 10, width: 300, borderRadius: 10, flexDirection: 'row'}}>
+                  <TouchableOpacity onPress={() => openColourPicker(mods[key].id, mods[key].modName)} style={{backgroundColor: mods[key].colour, height: 35, margin: 5, padding: 10, width: 300, borderRadius: 10, flexDirection: 'row'}}>
                     <Text style={styles.modText}>{mods[key].modName}</Text>
                   </TouchableOpacity>
                 </View>
@@ -559,9 +591,16 @@ export default function ProfileScreen({navigation}) {
 
         <View style={uploadedBefore ? {paddingTop: 30, flex: 0.3} : {paddingTop: 20, flex: 1}}>
           <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton} >
-              <Text style={{fontFamily: 'spacemono-bold', fontSize:13}}>Sign Out</Text>
+              <Text style={{fontFamily: 'spacemono-bold', fontSize: 13, }}>Sign Out</Text>
           </TouchableOpacity>
         </View>
+
+        <Spinner
+          visible={loadingColourUpdate}
+          textContent={'Updating...'}
+          textStyle={{fontFamily: 'spacemono', fontSize: 17, color: 'white',}}
+          size={"large"}
+        />
 
       </SafeAreaView>
     );
@@ -673,6 +712,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#9AC791',
   },
+
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 
 });
 
