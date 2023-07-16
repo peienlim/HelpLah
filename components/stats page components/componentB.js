@@ -3,6 +3,7 @@ import { Touchable } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import moment from 'moment';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -23,7 +24,15 @@ export default function WeeklyComponent() {
 
     const [graphicData, setGraphicData] = useState(defaultGraphicData);
     const [graphicData2, setGraphicData2] = useState(defaultGraphicData2);
- 
+    
+    useEffect(() => {
+        setGraphicData(wantedGraphicData);
+    }, []);
+
+    useEffect(() => {
+        setGraphicData2(wantedGraphicData2);
+    }, []);
+    
     // BAR CHART DUMMY DATA 
     const data = [
         { day: 'Mon', earnings: 13000 },
@@ -35,12 +44,19 @@ export default function WeeklyComponent() {
         { day: 'Sun', earnings: 12398 },
     ];
 
-    useEffect(() => {
-        setGraphicData(wantedGraphicData);
-    }, []);
+    const today = moment();
+    const weekStart = today.startOf('week');
+    const weekEnd = today.endOf('week');
+
+    const [week, setWeek] = useState([weekStart, weekEnd]);
+    const [weekDisplay, setWeekDisplay] = useState([convertToShowable(weekStart), convertToShowable(weekEnd)]);
+
+    const convertToShowable = (date) => {
+        console.log(date);
+    }
 
     useEffect(() => {
-        setGraphicData2(wantedGraphicData2);
+        setWeekDisplay([convertToShowable(weekStart), convertToShowable(weekEnd)]);
     }, []);
 
 
