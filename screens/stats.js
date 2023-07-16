@@ -25,7 +25,7 @@ export default function StatisticsScreen({navigation}) {
 
       <View style={styles.tabsToggle}>
 
-        <View style={styles.hi}></View>
+        <View style={styles.back}></View>
 
         <TouchableOpacity style={selectedTab === 'A' ? styles.tabChosen : styles.tabNotChosen} onPress={() => setSelectedTab('A')}>
           <Text style={selectedTab === 'A' ? styles.tabTextChosen : styles.tabTextNotChosen}>Daily</Text>
@@ -37,17 +37,19 @@ export default function StatisticsScreen({navigation}) {
 
       </View>
 
-      <SelectedTab/>
+      <SelectedTab style={styles.selectedTab}/>
 
     </SafeAreaView>
   );
-  
-
 }
 
 const styles = StyleSheet.create({
 
   background: {
+    flex: 1,
+  },
+
+  selectedTab: {
     flex: 1,
   },
 
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
     //flex: 1,
   },
 
-  hi: {
+  back: {
     position: 'absolute',
     top: 20,
     left: 45,
@@ -70,7 +72,7 @@ const styles = StyleSheet.create({
 
   tabChosen: {
     //margin: 20,
-    backgroundColor: '#D3D3D3',
+    backgroundColor: '#cee2cd',
     height: 50,
     width: 150,
     borderRadius: 15,
@@ -98,13 +100,13 @@ const styles = StyleSheet.create({
 
   tabTextChosen: {
     fontFamily: 'spacemono-bold',
-    fontSize: 17,
+    fontSize: 15,
     color: 'black',
   }, 
 
   tabTextNotChosen: {
     fontFamily: 'spacemono',
-    fontSize: 17,
+    fontSize: 15,
     color: 'white',
   }
 
