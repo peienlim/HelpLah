@@ -2,11 +2,13 @@ import React, {useEffect, useState, useRef} from 'react';
 import {Text, TouchableOpacity, StyleSheet, View, Animated, Easing, Alert} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
+import { uploadFocusData } from '../hook/uploadFocusData';
 //import { useNavigation } from '@react-navigation/native';
 
 const CountDownTimer = ({duration, closeModal}) => { // duration units is in seconds
     const [time, setTime] = useState(duration); //duration should be in seconds
     const [isActive, setIsActive] = useState(false);
+    const [currTime, setCurrTime] = useState(null);
     //const navigation = useNavigation();
 
     useEffect(() => {
@@ -23,6 +25,7 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
                       onPress: () => {
                         clearInterval(interval);
                         setIsActive(false);
+                        uploadFocusData(duration, currTime);
                         if (closeModal && typeof closeModal === 'function') {
                             closeModal(); // Close the modal
                         }
@@ -49,6 +52,7 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
     const startTimer = () => {
         setTime(duration);
         setIsActive(true);
+        setCurrTime(new Date());
     };
 
     /* const stopTimer = () => {
