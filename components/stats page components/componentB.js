@@ -9,6 +9,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 
+import { getCompletedItemsWeek } from '../../hook/stats page/weekly section/getCompletedItemsWeek';
+
 export default function WeeklyComponent() {
 
     //PIE CHART DUMMY DATA 
@@ -44,32 +46,61 @@ export default function WeeklyComponent() {
         { day: 'Sun', earnings: 12398 },
     ];
 
-    const today = moment();
-    const weekStart = today.startOf('week');
-    const weekEnd = today.endOf('week');
+    const [weekStart, setWeekStart] = useState(moment().startOf('isoWeek')); // Current week start
+    const [weekEnd, setWeekEnd] = useState(moment().endOf('isoWeek')); // Current week end
+    
+    const weekText = `${weekStart.format('MMM D')} - ${weekEnd.format('MMM D')}`;
+    const isCurrentWeek = weekStart.isSame(moment().startOf('isoWeek'), 'week');
+    
+    const navigateToPreviousWeek = () => {
+        const previousWeekStart = weekStart.clone().subtract(1, 'week');
+        if (previousWeekStart.isSameOrBefore(moment().startOf('isoWeek'))) {
+            setWeekStart(previousWeekStart);
+            setWeekEnd(previousWeekStart.clone().endOf('isoWeek'));
+        }
+    };
 
-    const [week, setWeek] = useState([weekStart, weekEnd]);
-    const [weekDisplay, setWeekDisplay] = useState([convertToShowable(weekStart), convertToShowable(weekEnd)]);
+    const navigateToNextWeek = () => {
+        const nextWeekStart = weekStart.clone().add(1, 'week');
+        if (nextWeekStart.isSameOrBefore(moment().startOf('isoWeek').add(1, 'week'))) {
+            setWeekStart(nextWeekStart);
+            setWeekEnd(nextWeekStart.clone().endOf('isoWeek'));
+        }
+    };
 
-    const convertToShowable = (date) => {
-        console.log(date);
-    }
-
-    useEffect(() => {
-        setWeekDisplay([convertToShowable(weekStart), convertToShowable(weekEnd)]);
-    }, []);
-
+    const weekData = getCompletedItemsWeek(weekStart, weekEnd);
+    
+    console.log('Number of Completed Events:', weekData.numComplete);
+    console.log('Number of Incompleted Events:', weekData.numIncomplete);
+    console.log('Modules Pie Labels:', weekData.modsPieLabel);
+    console.log('Modules Pie Data:', weekData.modsPieData);
+    console.log('Categories Pie Labels:', weekData.categoriesPieLabel);
+    console.log('Categories Pie Data:', weekData.categoriesPieData);
 
     return (
         <View>
 
             <View style={styles.weekBar}>
-                <TouchableOpacity>
-                    <Ionicons name="chevron-back-outline" color='black' size={20} margin={10} paddingRight={90} paddingTop={2}/>
+                <TouchableOpacity onPress={navigateToPreviousWeek}>
+                    <Ionicons 
+                        name="chevron-back-outline" 
+                        color='black' 
+                        size={20} 
+                        margin={10} 
+                        paddingRight={90} 
+                        paddingTop={2}
+                    />
                 </TouchableOpacity>
-                <Text style={styles.weekText}>Jul 17 - Jul 23</Text>
-                <TouchableOpacity>
-                    <Ionicons name="chevron-forward-outline" color='black' size={20} margin={10} paddingLeft={90} paddingTop={2}/>   
+                <Text style={styles.weekText}>{weekText}</Text>
+                <TouchableOpacity onPress={isCurrentWeek ? undefined : navigateToNextWeek}>
+                    <Ionicons 
+                        name="chevron-forward-outline" 
+                        color={isCurrentWeek ? '#D3D3D3' : 'black'} 
+                        size={20} 
+                        margin={10} 
+                        paddingLeft={90} 
+                        paddingTop={2}
+                    />   
                 </TouchableOpacity>
 
             </View>
@@ -81,11 +112,11 @@ export default function WeeklyComponent() {
                     <View style={styles.overviewContainer}>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Total Time Focused (h):</Text>
-                            <Text style={styles.overviewValue}>{12}</Text>
+                            <Text style={styles.overviewValue}>{0}</Text>
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Total Items Completed:</Text>
-                            <Text style={styles.overviewValue}>{26}</Text>
+                            <Text style={styles.overviewValue}>{weekData.numComplete}</Text>
                         </View>
                     </View>
 
