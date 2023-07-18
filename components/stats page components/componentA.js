@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import moment from 'moment';
 
 import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 import { width } from '@mui/system';
@@ -42,44 +43,49 @@ const DailyComponent = () => {
         { time: '2300', hours: 45 },
     ];
 
+    const [currentWeekStart, setCurrentWeekStart] = useState(moment().startOf('isoWeek'));
+    const [currentWeekEnd, setCurrentWeekEnd] = useState(moment().endOf('isoWeek'));
+
+    const isCurrentWeek = currentWeekStart.isSame(moment().startOf('isoWeek'), 'week');
+
+    const navigateToPreviousWeek = () => {
+        const previousWeekStart = currentWeekStart.clone().subtract(1, 'week');
+        if (previousWeekStart.isSameOrBefore(moment().startOf('isoWeek'))) {
+            setCurrentWeekStart(previousWeekStart);
+            setCurrentWeekEnd(previousWeekStart.clone().endOf('isoWeek'));
+        }
+    };
+
+    const navigateToNextWeek = () => {
+        const nextWeekStart = currentWeekStart.clone().add(1, 'week');
+        if (nextWeekStart.isSameOrBefore(moment().startOf('isoWeek').add(1, 'week'))) {
+            setCurrentWeekStart(nextWeekStart);
+            setCurrentWeekEnd(nextWeekStart.clone().endOf('isoWeek'));
+        }
+    };
+
     return (
 
         <View>
 
             <View style={styles.weekBar}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={navigateToPreviousWeek}>
                     <Ionicons name="chevron-back-outline" color='black' size={20} marginLeft={2}/>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.dayDate}>
-                    <Text style={styles.dateText}>17</Text> 
-                    <Text style={styles.dayText}>Mon</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.dayDate}>
-                    <Text style={styles.dateText}>18</Text> 
-                    <Text style={styles.dayText}>Tue</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.dayDate}>
-                    <Text style={styles.dateText}>19</Text> 
-                    <Text style={styles.dayText}>Wed</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.dayDate}>
-                    <Text style={styles.dateText}>20</Text> 
-                    <Text style={styles.dayText}>Thu</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.dayDate}>
-                    <Text style={styles.dateText}>21</Text> 
-                    <Text style={styles.dayText}>Fri</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.dayDate}>
-                    <Text style={styles.dateText}>22</Text> 
-                    <Text style={styles.dayText}>Sat</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.dayDate}>
-                    <Text style={styles.dateText}>23</Text> 
-                    <Text style={styles.dayText}>Sun</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <Ionicons name="chevron-forward-outline" color='black' size={20} marginRight={2}/>   
+
+                {Array.from({ length: 7 }).map((_, index) => {
+                    const date = currentWeekStart.clone().add(index, 'days');
+                    const isCurrentDay = date.isSame(moment(), 'day');
+                    return (
+                        <TouchableOpacity key={index} style={styles.dayDate}>
+                            <Text style={[styles.dateText, isCurrentDay && styles.currentDayText]}>{date.format('D')}</Text>
+                            <Text style={[styles.dayText, isCurrentDay && styles.currentDayText]}>{date.format('ddd')}</Text>
+                        </TouchableOpacity>
+                    );
+                })}
+
+                <TouchableOpacity onPress={isCurrentWeek ? undefined : navigateToNextWeek}>
+                    <Ionicons name="chevron-forward-outline" color={isCurrentWeek ? '#D3D3D3' : 'black'} size={20} marginRight={2}/>   
                 </TouchableOpacity>
 
             </View>
