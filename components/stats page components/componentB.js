@@ -9,7 +9,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 
-export default function WeeklyComponent() {
+const WeeklyComponent = () => {
 
     //PIE CHART DUMMY DATA 
     //const wantedGraphicData = [{ x: 'CS2030S', y: 10 }, { x: 'MA2001', y: 20 }, { x: 'GEA1000', y: 30 }, { x: 'CS2040S', y: 5 }, { x: 'IS2218', y: 10 }, { x: 'Others', y: 25 }]; 
@@ -44,7 +44,7 @@ export default function WeeklyComponent() {
         { day: 'Sun', earnings: 12398 },
     ];
 
-    const today = moment();
+    /* const today = moment();
     const weekStart = today.startOf('week');
     const weekEnd = today.endOf('week');
 
@@ -58,7 +58,7 @@ export default function WeeklyComponent() {
     useEffect(() => {
         setWeekDisplay([convertToShowable(weekStart), convertToShowable(weekEnd)]);
     }, []);
-
+ */
 
     return (
         <View>
@@ -170,7 +170,9 @@ export default function WeeklyComponent() {
         </View>
 
     )
-} 
+};
+
+export default WeeklyComponent;
 
 const styles = StyleSheet.create({
 

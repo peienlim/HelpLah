@@ -1,6 +1,6 @@
 import { Select } from '@mui/material';
 import React, {useState} from 'react';
-import { StyleSheet, Text, SafeAreaView, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View, TouchableOpacity, StatusBar} from 'react-native';
 import DailyComponent from '../components/stats page components/componentA';
 import WeeklyComponent from '../components/stats page components/componentB';
 import { Touchable } from 'react-native';
@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
 
   background: {
     flex: 1,
+    marginTop: StatusBar.currentHeight
   },
 
   selectedTab: {
