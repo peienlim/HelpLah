@@ -9,6 +9,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 
+
 import { getCompletedItemsWeek } from '../../hook/stats page/weekly section/getCompletedItemsWeek';
 
 export default function WeeklyComponent() {
@@ -45,7 +46,7 @@ export default function WeeklyComponent() {
         { day: 'Sat', earnings: 18493 },
         { day: 'Sun', earnings: 12398 },
     ];
-
+  
     const [weekStart, setWeekStart] = useState(moment().startOf('isoWeek')); // Current week start
     const [weekEnd, setWeekEnd] = useState(moment().endOf('isoWeek')); // Current week end
     
@@ -201,7 +202,9 @@ export default function WeeklyComponent() {
         </View>
 
     )
-} 
+};
+
+export default WeeklyComponent;
 
 const styles = StyleSheet.create({
 

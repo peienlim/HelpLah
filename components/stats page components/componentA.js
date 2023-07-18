@@ -8,7 +8,12 @@ import moment from 'moment';
 import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 import { width } from '@mui/system';
 
-export default function DailyComponent() {
+import { getDailyFocusHr } from '../../hook/getDailyFocusHr';
+import { getDailyTaskCompleted } from '../../hook/getDailyTaskCompleted';
+
+const DailyComponent = () => {
+
+    const[currDate, setCurrDate] = useState(new Date());
 
     // BAR CHART DUMMY DATA 
     const data = [
@@ -91,12 +96,12 @@ export default function DailyComponent() {
 
                     <View style={styles.overviewContainer}>
                         <View style={styles.overviewItem}>
-                            <Text style={styles.overviewLabel}>Time Focused (h):</Text>
-                            <Text style={styles.overviewValue}>{12}</Text>
+                            <Text style={styles.overviewLabel}>Time Focused (min):</Text>
+                            <Text style={styles.overviewValue}>{getDailyFocusHr(currDate)}</Text>
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Items Completed:</Text>
-                            <Text style={styles.overviewValue}>{2}</Text>
+                            <Text style={styles.overviewValue}>{getDailyTaskCompleted(currDate)}</Text>
                         </View>
                     </View>
 
@@ -143,7 +148,10 @@ export default function DailyComponent() {
         </View>
     
     )
-} 
+};
+
+export default DailyComponent;
+
 
 const styles = StyleSheet.create({
 

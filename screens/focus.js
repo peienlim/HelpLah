@@ -11,6 +11,7 @@ export default function FocusScreen({navigation}) {
   const [min, setMin] = useState(0);
   
   const minIntervals = [
+    {key: '0', value: 1},
     {key: '1', value: 5},
     {key: '2', value: 10},
     {key: '3', value: 15},
