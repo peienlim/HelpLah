@@ -481,7 +481,6 @@ export default function WeeklyComponent() {
     )
 };
 
-export default WeeklyComponent;
 
 const styles = StyleSheet.create({
 
