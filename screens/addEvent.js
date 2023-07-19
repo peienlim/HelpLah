@@ -36,7 +36,7 @@ export default function AddEvent({navigation}) {
     ]
 
     const [selectedColour, setSelectedColour] = useState("grey");
-    const [showColourPicker, setShowColourPicker] = useState(false);
+    const [showColourPicker, setShowColourPicker] = useState(true);
      
     const colours = [
       {key: '1', value: 'red'},
@@ -240,7 +240,7 @@ export default function AddEvent({navigation}) {
         statusBarTranslucent={false} 
         transparent={false}>
           
-          <TouchableOpacity style={{ paddingLeft: 15, paddingTop: 40 }} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={{ paddingLeft: 15, paddingTop: 30 }} onPress={() => navigation.goBack()}>
             <Ionicons name='arrow-back' color='black' size={25} paddingRight={10}/>
           </TouchableOpacity>
 
