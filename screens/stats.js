@@ -1,13 +1,13 @@
-import { Select } from '@mui/material';
 import React, {useState} from 'react';
 import { StyleSheet, Text, SafeAreaView, View, TouchableOpacity } from 'react-native';
 import DailyComponent from '../components/stats page components/componentA';
 import WeeklyComponent from '../components/stats page components/componentB';
-import { Touchable } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default function StatisticsScreen({navigation}) {
 
-  const [selectedTab, setSelectedTab] = useState('');
+  const [selectedTab, setSelectedTab] = useState('A');
+  const [loading, setLoading] = useState(false);
 
   const SelectedTab = () => {
     switch (selectedTab) {
@@ -16,7 +16,7 @@ export default function StatisticsScreen({navigation}) {
       case 'B':
         return <WeeklyComponent />;
       default: 
-        return <View />;
+        return <DailyComponent />;
     }
   };
 
@@ -27,11 +27,12 @@ export default function StatisticsScreen({navigation}) {
 
         <View style={styles.back}></View>
 
-        <TouchableOpacity style={selectedTab === 'A' ? styles.tabChosen : styles.tabNotChosen} onPress={() => setSelectedTab('A')}>
+        <TouchableOpacity 
+            style={selectedTab === 'A' ? styles.tabChosen : styles.tabNotChosen} onPress={() => { setSelectedTab('A');}}>
           <Text style={selectedTab === 'A' ? styles.tabTextChosen : styles.tabTextNotChosen}>Daily</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={selectedTab === 'B' ? styles.tabChosen : styles.tabNotChosen} onPress={() => setSelectedTab('B')}>
+        <TouchableOpacity style={selectedTab === 'B' ? styles.tabChosen : styles.tabNotChosen} onPress={() => { setSelectedTab('B')}}>
           <Text style={selectedTab === 'B' ? styles.tabTextChosen : styles.tabTextNotChosen}>Weekly</Text>
         </TouchableOpacity>
 
@@ -39,7 +40,15 @@ export default function StatisticsScreen({navigation}) {
 
       <SelectedTab style={styles.selectedTab}/>
 
+      <Spinner
+        visible={loading}
+        textContent={'Updating...'}
+        textStyle={{fontFamily: 'spacemono', fontSize: 17, color: 'white',}}
+        size={"large"}
+      />
+
     </SafeAreaView>
+    
   );
 }
 
