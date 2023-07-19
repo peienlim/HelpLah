@@ -3,9 +3,9 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
 import { collection, onSnapshot } from 'firebase/firestore';
 
-export const getDailyTaskCompleted = (currDate) => {
-    const [tasksCompleted, setTasksCompleted] = useState([]);
-    const [taskCompletedCount, setTaskCompletedCount] = useState(0);
+export const getTotalDailyTask = (currDate) => {
+    const [totalTasks, setTotalTasks] = useState([]);
+    const [totalTaskCount, setTotalTaskCount] = useState(0);
 
 
     useEffect(() => {
@@ -17,22 +17,22 @@ export const getDailyTaskCompleted = (currDate) => {
             const eventsData = querySnapshot.docs.map((doc) => doc.data());
       
             const filteredData = eventsData.filter((event) => {
-              const completeStatus = event.completed;
               const eventDate = event.startDate.toDate();
+              const eventType = event.category;
               const isNusMod = event.nusmods;
-              return completeStatus === true && eventDate.toDateString() === currDate.toDateString() && isNusMod === false;
+              return eventDate.toDateString() === currDate.toDateString() && isNusMod === false;
             });
       
-            setTasksCompleted(filteredData);
+            setTotalTasks(filteredData);
         });
         return unsubscribe;
     }, []);
 
     useEffect(() => {
-        const tasksCompletedCount = tasksCompleted.length;
-        setTaskCompletedCount(tasksCompletedCount);
-        console.log('Number of completed tasks:', tasksCompletedCount);
-    }, [tasksCompleted]);
+        const count = totalTasks.length;
+        totalTaskCount(count);
+        console.log('Number of completed tasks:', count);
+    }, [totalTasks]);
 
-    return taskCompletedCount;
+    return totalTaskCount;
 };
