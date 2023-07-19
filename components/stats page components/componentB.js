@@ -1,41 +1,58 @@
 import React, { useEffect, useState } from 'react'
-import { Touchable } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
+
+import { getAuth } from 'firebase/auth';
+import { db } from '../../firebaseConfigDB';
+import { collection, onSnapshot } from 'firebase/firestore';
+
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import moment from 'moment';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 
-
-import { getCompletedItemsWeek } from '../../hook/stats page/weekly section/getCompletedItemsWeek';
-
 export default function WeeklyComponent() {
+    const auth = getAuth();
+    const userEmail = auth.currentUser.email;
 
-    //PIE CHART DUMMY DATA 
-    //const wantedGraphicData = [{ x: 'CS2030S', y: 10 }, { x: 'MA2001', y: 20 }, { x: 'GEA1000', y: 30 }, { x: 'CS2040S', y: 5 }, { x: 'IS2218', y: 10 }, { x: 'Others', y: 25 }]; 
-    const wantedGraphicData = [{ x: ' ', y: 10 }, { x: ' ', y: 20 }, { x: ' ', y: 30 }, { x: ' ', y: 5 }, { x: ' ', y: 10 }, { x: ' ', y: 25 }];
-    const defaultGraphicData = [{ y: 0 }, { y: 0 }, { y: 0 }, { y: 0 }, { y: 0 }, { y: 100 }]; 
-    const graphicColor = ['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF','#AED6F1', '#CCCCFF', ];
-
-    //const wantedGraphicData2 = [{ x: 'classes', y: 10 }, { x: 'events', y: 20 }, { x: 'tasks', y: 30 }, { x: 'others', y: 40 }]; 
-    const wantedGraphicData2 = [{ x: ' ', y: 10 }, { x: ' ', y: 20 }, { x: ' ', y: 30 }, { x: ' ', y: 40 }]; 
-    const defaultGraphicData2 = [{ y: 0 }, { y: 0 }, { y: 0 }, { y: 100 }]; 
-    const graphicColor2 = ['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF'];
-
-    const [graphicData, setGraphicData] = useState(defaultGraphicData);
-    const [graphicData2, setGraphicData2] = useState(defaultGraphicData2);
+    // colours array for category distribution pie chart 
+    const catPieColorArr = ['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF'];
     
-    useEffect(() => {
-        setGraphicData(wantedGraphicData);
-    }, []);
+    // colours array for module distribution pie chart 
+    const modPieColorArr = ['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF','#AED6F1', '#CCCCFF' ];
 
-    useEffect(() => {
-        setGraphicData2(wantedGraphicData2);
-    }, []);
-    
+    // colours array for completion rate pie chart - green for completed (index 0), grey for uncompleted (index 1)
+    const completionRateColorArr = ['#AFE1AF', '#909090'];
+
+    const [thisWeek, setThisWeek] = useState(false);
+
+    const [completionRateData, setCompletionRateData] = useState([]);
+
+    const [greyMods, setGreyMods] = useState(false);
+    const [greyCats, setGreyCats] = useState(false);
+    const [greyCompletionRate, setGreyCompletionRate] = useState(false);
+
+    const [modPieData, setModPieData] = useState([]);
+    const [categoryPieData, setCategoryPieData] = useState([]);
+
+    const [modPieLabel, setModPieLabel] = useState([]);
+    const [categoryPieLabel, setCategoryPieLabel] = useState([]);
+
+    const [numComplete, setNumComplete] = useState(0);
+    const [numIncomplete, setNumIncomplete] = useState(0);
+
+    const [defaultModPieLabel, setDefaultModPieLabel] = useState([]);
+    const [defaultCategoryPieLabel, setDefaultCategoryPieLabel] = useState([]);
+
+    const MODULE_ENTRY_HEIGHT = 30;
+
+    const numModEntries = modPieLabel.length;
+    const numCatEntries = categoryPieLabel.length;
+    const modPieContainerHeight = numModEntries * MODULE_ENTRY_HEIGHT + 30;
+    const catPieContainerHeight = numCatEntries * MODULE_ENTRY_HEIGHT + 30;
+
+
     // BAR CHART DUMMY DATA 
     const data = [
         { day: 'Mon', earnings: 13000 },
@@ -69,14 +86,169 @@ export default function WeeklyComponent() {
         }
     };
 
-    const weekData = getCompletedItemsWeek(weekStart, weekEnd);
+    const calculateDurationInHours = (startDate, endDate) => {
+        const start = moment(startDate);
+        const end = moment(endDate);
+        const durationInMs = end.diff(start);
+        const durationInHours = moment.duration(durationInMs).asHours();
+        return durationInHours;
+    };
+
+    const unsubscribeFunctions = [];
+
+    const getCompletedItemsWeek = async (start, end) => {
+        try {
+
+            const eventsRef = collection(db, 'users', userEmail, 'events');
+
+            unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+
+            const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+                const eventsData = querySnapshot.docs.map((doc) => doc.data());
+
+                const weekEvents = eventsData.filter((event) => { 
+                    const eventStartDate = moment(event.startDate.toDate());
+                    //console.log(eventStartDate);
+                    return eventStartDate.isBetween(start, end, null, '[]');
+                }); 
+
+                // get number of completed events
+                const completedEvents = weekEvents.filter((event) => {
+                    return event.completed === true;
+                })  
+
+                setNumComplete(completedEvents.length);
+
+
+                // get number of uncompleted events
+                const uncompletedEvents = weekEvents.filter((event) => {
+                    return event.completed === false;
+                })  
+
+                setNumIncomplete(uncompletedEvents.length);
+
+                // get completion rate data 
+                if (completedEvents.length === 0 && uncompletedEvents.length === 0) {
+                    setGreyCompletionRate(true);
+                    setCompletionRateData([{'x': ' ', 'y': 1}])
+                } else {
+                    const completionRate = [{'x': ' ', 'y': completedEvents.length}, {'x': ' ', 'y': uncompletedEvents.length}];
+                    setCompletionRateData(completionRate);
+                    
+                    setGreyCompletionRate(false);
+                }
+
+                // get mods task distribution
+                if (completedEvents.length === 0) { // if no completed events, show grey pie chart 
+                    setGreyMods(true);
+                    setModPieData([{'x': ' ', 'y': 1}]);
+                    
+                } else {
+                    //setGrey(true);
+                    const moduleHoursMap = completedEvents.reduce((acc, event) => {
+                        const moduleName = event.module;
+                        const durationInHours = calculateDurationInHours(event.startDate.toDate(), event.endDate.toDate());
+                        acc[moduleName] = (acc[moduleName] || 0) + durationInHours;
+                        return acc;
+                    }, {});
+
+                    const modNamesArray = Object.keys(moduleHoursMap);
+                    setModPieLabel(modNamesArray);
+                    console.log('mod names: ', modPieLabel);
+                    console.log('corresponding colours: ', modPieColorArr);
+
+                    const modTransformedData = Object.values(moduleHoursMap);
+                    console.log('mod transformed data: ', modTransformedData);
+                    const modPieData = modTransformedData.map((hours) => {
+                        return { x: ' ', y: hours };
+                    })
+                    setModPieData(modPieData);
+
+                    setGreyMods(false);
+                }
+
+
+                // get categories task distribution
+                if (completedEvents.length === 0) { // if no completed events, show grey pie chart 
+                    setGreyCats(true);
+                    setCategoryPieData([{'x': ' ', 'y': 1}]);
+
+                } else {
+                    //setGrey(true);
+                    const categoriesHoursMap = completedEvents.reduce((acc, event) => {
+                        const category = event.category;
+                        const durationInHours = calculateDurationInHours(event.startDate.toDate(), event.endDate.toDate());
+                        acc[category] = (acc[category] || 0) + durationInHours;
+                        return acc;
+                    }, {});
+
+                    const catNamesArray = Object.keys(categoriesHoursMap);
+                    setCategoryPieLabel(catNamesArray);
+                    console.log('cat names: ', categoryPieLabel);
+                    console.log('corresponding colours: ', catPieColorArr);
+
+                    
+
+                    const catTransformedData = Object.values(categoriesHoursMap);
+                    console.log('cat transformed data: ', catTransformedData);
+                    const categoryPieData = catTransformedData.map((hours) => {
+                        return { x: ' ', y: hours };
+                    })
+                    setCategoryPieData(categoryPieData);
+                    console.log('here');
+                    
+                    setGreyCats(false);
+                }
+                
+            });
+
+            unsubscribeFunctions.push(unsubscribe);
+
+            // Return an unsubscribe function to stop listening for updates
+            return unsubscribe;
+
+        } catch (error) {
+            console.log('hi: ', error);
+        }
+    };  
+
     
-    console.log('Number of Completed Events:', weekData.numComplete);
-    console.log('Number of Incompleted Events:', weekData.numIncomplete);
-    console.log('Modules Pie Labels:', weekData.modsPieLabel);
-    console.log('Modules Pie Data:', weekData.modsPieData);
-    console.log('Categories Pie Labels:', weekData.categoriesPieLabel);
-    console.log('Categories Pie Data:', weekData.categoriesPieData);
+
+    const getWeekData = async () => {
+        try {
+
+            if (weekStart.isSame(moment().startOf('isoWeek'), 'isoWeek')) {
+                setThisWeek(true);
+            }
+
+            setGreyMods(true);
+            setGreyCats(true);
+            setGreyCompletionRate(true);
+
+            await getCompletedItemsWeek(weekStart, weekEnd);
+
+            console.log('Number of Completed Events:', numComplete);
+            console.log('Number of Incompleted Events:', numIncomplete);
+   
+
+        } catch (error) {
+            console.log(error);
+        }
+            
+    }
+      
+    useEffect(() => {
+        getWeekData();
+
+        // Cleanup function to unsubscribe from Firebase Firestore listeners when the component unmounts.
+        return () => {
+            unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+        };
+    }, [weekStart, weekEnd]);
+
+    const getInfoViewText = (label) => {
+        return `${label} - ${modPieData[index].y.toFixed(2)} hrs`
+    }
 
     return (
         <View>
@@ -117,53 +289,158 @@ export default function WeeklyComponent() {
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Total Items Completed:</Text>
-                            <Text style={styles.overviewValue}>{weekData.numComplete}</Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.box}>
-                        <Text style={styles.pieHeading}>Mods task distribution</Text>
-                        <View style={styles.pieContainer}>
-                            <View style={styles.pieView}>
-                                <View style={styles.pie}>
-                                    <VictoryPie
-                                        data={graphicData}
-                                        width={200}
-                                        height={200}
-                                        colorScale={graphicColor}
-                                        innerRadius={30}
-                                        animate={{ easing: 'exp' }}
-                                        padAngle={3}
-                                        style={{ labels: { fontSize: 12 } }}
-                                    />
-                                </View>
-                            </View>
-                            <View style={styles.infoView}>
-                                <Text>Completed tasks in hours based on module</Text>
-                            </View>
+                            <Text style={styles.overviewValue}>{numComplete}</Text>
                         </View>
                     </View>
                     
                     <View style={styles.box}>
-                        <Text style={styles.pieHeading}>Categories task distribution</Text>
-                        <View style={styles.pieContainer}>
+                        <Text style={styles.pieHeading}>Category Distribution</Text>
+                        <View style={styles.horizontalSeparator}/>
+                        {!greyCats ? (
+                            <Text style={{ paddingTop: 7 }}>Completed blocks based on category type</Text>
+                        ) : (
+                            <Text style={{ paddingTop: 7 }}>No completed blocks for this week</Text>
+                        )}
+                        
+                        <View style={[styles.pieContainer, { height: catPieContainerHeight }]}>
                             <View style={styles.pieView}>
                                 <View style={styles.pie}>
                                     <VictoryPie
-                                        data={graphicData2}
+                                        data={categoryPieData}
                                         width={200}
                                         height={200}
-                                        colorScale={graphicColor2}
+                                        colorScale={greyCats ? ['#939799'] : catPieColorArr}
                                         innerRadius={30}
-                                        animate={{ easing: 'exp' }}
+                                        animate={greyCats ? {} : { easing: 'exp', duration: 2000 }}
                                         padAngle={3}
                                         style={{ labels: { fontSize: 12 } }}
+                                        labels={defaultCategoryPieLabel}
                                     />
                                 </View>
                             </View>
-                            <View style={styles.infoView}>
-                                <Text>Completed tasks in hours based category (class, event, task, others)</Text>
+                            <View style={styles.verticalSeparator}/>
+
+                            {!greyCats && categoryPieData.length > 0 && (
+                                <View style={styles.infoView}>
+                                    <Text style={{ paddingBottom: 5, fontSize: 12 }}>{`Total hours: ${categoryPieData.reduce((total, dataPoint) => total + dataPoint.y, 0).toFixed(1)} hrs`}</Text>
+                                    {categoryPieLabel.map((label, index) => (
+                                        <View key={index} style={{ flexDirection: 'row', alignItems: 'center', margin: 2 }}>
+                                            <View style={{ width: 15, height: 15, backgroundColor: catPieColorArr[index], marginRight: 5 }} />
+                                            <Text style={styles.infoViewText}>{`${label} - ${categoryPieData[index].y.toFixed(1)} hrs`}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            )}
+                            {greyCats && (
+                                <View style={styles.infoView}>
+                                    <Text style={{fontFamily: 'spacemono', fontSize: 12, color: 'grey', paddingLeft: 30 }}>No data (yet)!</Text>
+                                </View>
+                            )}
+                            
+                        </View>
+                    </View>
+
+                    <View style={styles.box}>
+                        <Text style={styles.pieHeading}>Module distribution</Text>
+                        <View style={styles.horizontalSeparator}/>
+                        {!greyMods ? (
+                            <Text style={{ paddingTop: 7 }}>Completed blocks based on module type</Text>
+                        ) : (
+                            <Text style={{ paddingTop: 7 }}>No completed blocks for this week</Text>
+                        )}
+
+                        <View style={[styles.pieContainer, { height: modPieContainerHeight }]}>
+                            <View style={styles.pieView}>
+                                <View style={styles.pie}>
+                                    <VictoryPie
+                                        data={modPieData}
+                                        width={200}
+                                        height={200}
+                                        colorScale={greyMods ? ['#939799'] : modPieColorArr}
+                                        innerRadius={30}
+                                        animate={greyMods ? {} : { easing: 'exp', duration: 2000 }}
+                                        padAngle={3}
+                                        style={{ labels: { fontSize: 12 } }}
+                                        labels={defaultModPieLabel}
+                                    />
+                                </View>
                             </View>
+                            <View style={styles.verticalSeparator}/>
+
+                            {!greyMods && modPieData.length > 0 && (
+                                <View style={styles.infoView}>
+                                    <Text style={{ paddingBottom: 5, fontSize: 12 }}>{`Total hours: ${modPieData.reduce((total, dataPoint) => total + dataPoint.y, 0).toFixed(1)} hrs`}</Text>
+                                    {modPieLabel.map((label, index) => (
+                                        <View key={index} style={{ flexDirection: 'row', alignItems: 'center' , margin: 2}}>
+                                            <View style={{ width: 15, height: 15, backgroundColor: modPieColorArr[index], marginRight: 5 }} />
+                                            <Text style={styles.infoViewText}>{`${label} - ${modPieData[index].y.toFixed(1)} hrs`}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            )}
+                            
+                            {greyMods && (
+                                <View style={styles.infoView}>
+                                    <Text style={{fontFamily: 'spacemono', fontSize: 12, color: 'grey', paddingLeft: 30 }}>No data (yet)!</Text>
+                                </View>
+                            )}
+                            
+                        </View>
+                    </View>
+
+                    <View style={styles.box}>
+                        <Text style={styles.pieHeading}>Completion rate</Text>
+                        <View style={styles.horizontalSeparator}/>
+                        {!greyCompletionRate ? (
+                            <Text style={{ paddingTop: 7 }}>Completion rate of scheduled blocks this week</Text>
+                        ) : (
+                            <Text style={{ paddingTop: 7 }}>No completed blocks for this week</Text>
+                        )}
+
+                        <View style={[styles.pieContainer, { height: modPieContainerHeight }]}>
+                            <View style={styles.pieView}>
+                                <View style={styles.pie}>
+                                    <VictoryPie
+                                        data={completionRateData}
+                                        width={200}
+                                        height={200}
+                                        colorScale={greyCompletionRate ? ['#939799'] : completionRateColorArr}
+                                        innerRadius={30}
+                                        animate={greyCompletionRate ? {} : { easing: 'exp', duration: 2000 }}
+                                        padAngle={3}
+                                        style={{ labels: { fontSize: 12 } }}
+                                        labels={[' ', ' ']}
+                                    />
+                                </View>
+                            </View>
+                            <View style={styles.verticalSeparator}/>
+
+                            {!greyCompletionRate && completionRateData.length > 0 && (
+                                <View style={styles.infoView}>
+                                    <Text style={{ paddingBottom: 7, fontSize: 12 }}>
+                                        { thisWeek ? (
+                                            `You are ${Math.round((numComplete / (numComplete + numIncomplete)) * 100)}% done!`
+                                        ) : (
+                                            `You completed ${Math.round((numComplete / (numComplete + numIncomplete)) * 100)}% of scheduled blocks!`
+                                        )}
+                                    </Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', margin: 2 }}>
+                                        <View style={{ width: 15, height: 15, backgroundColor: completionRateColorArr[0], marginRight: 5 }} />
+                                        <Text style={styles.infoViewText}>{`${numComplete} blocks completed`}</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', margin: 2 }}>
+                                        <View style={{ width: 15, height: 15, backgroundColor: completionRateColorArr[1], marginRight: 5 }} />
+                                        <Text style={styles.infoViewText}>{`${numIncomplete} blocks incomplete`}</Text>
+                                    </View>
+                                </View>
+                            )}
+                            
+                            {greyCompletionRate && (
+                                <View style={styles.infoView}>
+                                    <Text style={{fontFamily: 'spacemono', fontSize: 12, color: 'grey', paddingLeft: 30 }}>No data (yet)!</Text>
+                                </View>
+                            )}
+                            
                         </View>
                     </View>
 
@@ -229,7 +506,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         marginTop: 20,
-        backgroundColor: '#AAAAAA',
+        backgroundColor: '#E6E8E9',
         height: 70,
         width: 350,
         borderRadius: 10,
@@ -251,7 +528,7 @@ const styles = StyleSheet.create({
     // pie chart components style
     box: {
         alignItems: 'center',
-        backgroundColor: '#D3D3D3',
+        backgroundColor: '#ABB0B8',
         marginTop: 20,
         marginHorizontal: 20,
         borderRadius: 10,
@@ -260,8 +537,9 @@ const styles = StyleSheet.create({
     
     pieHeading: {
         fontFamily: 'spacemono',
-        fontSize: 20,
+        fontSize: 19,
         paddingTop: 20,
+        paddingBottom: 10,
         flex: 1
     },
 
@@ -272,6 +550,20 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         width: '100%',
         flex: 6,
+    },
+    
+    horizontalSeparator: {
+        borderBottomWidth: 2.5,
+        borderColor: 'grey', 
+        width: 300,
+        //paddingTop: 10
+    },
+
+    verticalSeparator: {
+        borderRightWidth: 2.5,
+        borderColor: 'grey', 
+        height: '80%', 
+        marginLeft: 30, 
     },
 
     container: {
@@ -290,6 +582,10 @@ const styles = StyleSheet.create({
     infoView: {
         flex: 2,
         paddingLeft: 25,
+    },
+
+    infoViewText: {
+        fontSize: 11
     },
 
     pie: {
