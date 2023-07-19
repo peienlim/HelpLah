@@ -1,21 +1,30 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { useIsFocused } from '@react-navigation/native';
+
+import { getAuth } from 'firebase/auth';
+import { db } from '../../firebaseConfigDB';
+import { collection, getDocs } from 'firebase/firestore';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
 
-import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
-import { width } from '@mui/system';
-
-import { getDailyFocusHr } from '../../hook/getDailyFocusHr';
-import { getDailyTaskCompleted } from '../../hook/getDailyTaskCompleted';
-import { getTotalDailyTask } from '../../hook/getTotalDailyTask';
-
 import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 
 
-const DailyComponent = () => {
+export default function DailyComponent() {
+
+    const auth = getAuth();
+    const userEmail = auth.currentUser.email;
+
+    const isFocused = useIsFocused();
+
+    useEffect(() => {
+        // Fetch data for today whenever the screen is focused or re-rendered
+        const today = new Date();
+        pickDate(today);
+    }, [isFocused]);
 
     // BAR CHART DUMMY DATA 
     const data = [
@@ -50,18 +59,20 @@ const DailyComponent = () => {
 
     const [currentWeekStart, setCurrentWeekStart] = useState(moment().startOf('isoWeek'));
     const [currentWeekEnd, setCurrentWeekEnd] = useState(moment().endOf('isoWeek'));
-
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    
     const isCurrentWeek = currentWeekStart.isSame(moment().startOf('isoWeek'), 'week');
+    
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [today, setToday] = useState(false);
 
     const [dailyFocusHour, setDailyFocusHour] = useState(0);
     const [dailyTaskCompleted, setDailyTaskCompleted] = useState(0);
-    const [dailyTaskUncomplete, setDailyTaskUncomplete] = useState(0);
+    const [dailyTotalTask, setDailyTotalTask] = useState(0);
 
     // for completion rate pie chart 
     const [completionRateData, setCompletionRateData] = useState([]);
+    const [label, setLabel] = useState([]);
     const [greyCompletionRate, setGreyCompletionRate] = useState(false);
-
 
 
     const navigateToPreviousWeek = () => {
@@ -80,10 +91,148 @@ const DailyComponent = () => {
         }
     };
 
-    const pickDate = (date) => {
+    const getDailyFocusHr = async (dt) => {
+
+        const eventsRef = collection(db, 'users', userEmail, 'focusMode');
+
+        try {
+            const querySnapshot = await getDocs(eventsRef);
+            const focusData = querySnapshot.docs.map((doc) => doc.data());
+        
+            const filteredData = focusData.filter((focusEvent) => {
+              const focusEventDate = focusEvent.timeStarted.toDate();
+              return focusEventDate.toDateString() === dt.toDateString();
+            });
+        
+            const sumOfDurations = filteredData.reduce((sum, focusEvent) => {
+              return sum + focusEvent.duration;
+            }, 0);
+        
+            return sumOfDurations;
+
+          } catch (error) {
+            console.error('Error fetching focus events: ', error);
+            throw error; 
+          }
+    }
+
+    const getTotalDailyTask = async (dt) => {
+        const eventsRef = collection(db, 'users', userEmail, 'events');
+
+        try {
+            const querySnapshot = await getDocs(eventsRef);
+            const eventsData = querySnapshot.docs.map((doc) => doc.data());
+        
+            const filteredData = eventsData.filter((event) => {
+                const eventDate = event.startDate.toDate();
+                const eventType = event.category;
+                const isNusMod = event.nusmods;
+                return eventDate.toDateString() === dt.toDateString() && isNusMod === false;
+            });
+        
+            return filteredData.length;
+        
+        } catch (error) {
+            console.error('Error fetching events data: ', error);
+            throw error; 
+        }
+    
+    }
+
+    const getDailyTaskCompleted = async (dt) => {
+
+        const eventsRef = collection(db, 'users', userEmail, 'events');
+
+        try {
+            const querySnapshot = await getDocs(eventsRef);
+            const eventsData = querySnapshot.docs.map((doc) => doc.data());
+        
+            const filteredData = eventsData.filter((event) => {
+              const completeStatus = event.completed;
+              const eventDate = event.startDate.toDate();
+              const isNusMod = event.nusmods;
+              return completeStatus === true && eventDate.toDateString() === dt.toDateString() && isNusMod === false;
+            });
+        
+            return filteredData.length;
+        
+        } catch (error) {
+            console.error('Error fetching events data: ', error);
+            throw error; 
+        }
+    
+    }
+
+    const pickDate = async (date) => {
+
+        const selectedDateLocal = moment(selectedDate).local();
+        const currentDateLocal = moment().startOf('day');
+
+        if (selectedDateLocal.isSame(currentDateLocal, 'day')) {
+            setToday(true);
+        }
+
+        setGreyCompletionRate(true);
+
+        const arr = await getReqData(date);
+        console.log('arr: ', arr);
+
+        const focusHour = arr.dfh;
+        console.log('focus: ', focusHour);
+
+        const tasksCompleted = arr.dtc;
+        console.log('tasks completed: ', tasksCompleted);
+
+        const totalTasks = arr.tdt;
+        console.log('total tasks: ', totalTasks);
+
+        if (totalTasks > 0) {
+            setCompletionRateData([{'x': ' ', 'y': tasksCompleted}, { 'x': ' ', 'y': totalTasks - tasksCompleted}]);
+            setLabel([' ', ' ']);
+            setGreyCompletionRate(false);
+        } else {
+            setGreyCompletionRate(true);
+            setCompletionRateData([{'x': ' ', 'y': 1}])
+        }
+
+    }
+
+    const getReqData = async (date) => {
         setSelectedDate(date);
         console.log('selected: ', selectedDate);
+
+        try {
+            const dfh = await getDailyFocusHr(date);
+            console.log('daily focus hour: ', dfh);
+
+            const dtc = await getDailyTaskCompleted(date);
+            console.log('daily tasks completed: ', dtc);
+
+            const tdt = await getTotalDailyTask(date);
+            console.log('daily TOTAL tasks: ', tdt);
+
+            setDailyFocusHour(dfh);
+            setDailyTaskCompleted(dtc);
+            setDailyTotalTask(tdt);
+
+            return {
+                dfh,
+                dtc,
+                tdt
+            }
+
+        } catch (error) {
+            console.error('error getting req data: ', error);
+            throw error; 
+        }
+        
+
     }
+
+    useEffect(() => {
+        const today = new Date();
+        pickDate(today);
+    }, []);
 
     return (
 
@@ -96,7 +245,7 @@ const DailyComponent = () => {
 
                 {Array.from({ length: 7 }).map((_, index) => {
                     const date = currentWeekStart.clone().add(index, 'days');
-                    console.log('date: ', new Date(date));
+                    //console.log('date: ', new Date(date));
                     const isCurrentDay = date.isSame(moment(), 'day');
                     return (
                         <TouchableOpacity key={index} style={styles.dayDate} onPress={() => pickDate(new Date(date))}>
@@ -125,16 +274,70 @@ const DailyComponent = () => {
                     <View style={styles.overviewContainer}>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Time Focused (min):</Text>
-                            <Text style={styles.overviewValue}>{1}</Text>
+                            <Text style={styles.overviewValue}>{dailyFocusHour}</Text>
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Items Completed:</Text>
-                            <Text style={styles.overviewValue}>{1}</Text>
+                            <Text style={styles.overviewValue}>{dailyTaskCompleted}</Text>
                         </View>
                         
                     </View>
 
-                    
+                    <View style={styles.box}>
+                        <Text style={styles.pieHeading}>Completion rate</Text>
+                        <View style={styles.horizontalSeparator}/>
+                        {!greyCompletionRate ? (
+                            <Text style={{ paddingTop: 7 }}>Completion rate of scheduled blocks</Text>
+                        ) : (
+                            <Text style={{ paddingTop: 7 }}>No completed blocks for this date</Text>
+                        )}
+
+                        <View style={[styles.pieContainer, { height: 600 }]}>
+                            <View style={styles.pieView}>
+                                <View style={styles.pie}>
+                                    <VictoryPie
+                                        data={completionRateData}
+                                        width={200}
+                                        height={200}
+                                        colorScale={greyCompletionRate ? ['#939799'] : completionRateColorArr}
+                                        innerRadius={30}
+                                        animate={greyCompletionRate ? {} : { easing: 'exp', duration: 2000 }}
+                                        padAngle={3}
+                                        style={{ labels: { fontSize: 12 } }}
+                                        labels={[' ', ' ']}
+                                    />
+                                </View>
+                            </View>
+                            <View style={styles.verticalSeparator}/>
+
+                            {!greyCompletionRate && dailyTotalTask > 0 && (
+                                <View style={styles.infoView}>
+                                    <Text style={{ paddingBottom: 7, fontSize: 12 }}>
+                                        { today ? (
+                                            `You are ${Math.round((dailyTaskCompleted / dailyTotalTask) * 100)}% done!`
+                                        ) : (
+                                            `You completed ${Math.round((dailyTaskCompleted / dailyTotalTask) * 100)}% of scheduled blocks!`
+                                        )}
+                                    </Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', margin: 2 }}>
+                                        <View style={{ width: 15, height: 15, backgroundColor: completionRateColorArr[0], marginRight: 5 }} />
+                                        <Text style={styles.infoViewText}>{`${dailyTaskCompleted} blocks completed`}</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', margin: 2 }}>
+                                        <View style={{ width: 15, height: 15, backgroundColor: completionRateColorArr[1], marginRight: 5 }} />
+                                        <Text style={styles.infoViewText}>{`${dailyTotalTask - dailyTaskCompleted} blocks incomplete`}</Text>
+                                    </View>
+                                </View>
+                            )}
+                            
+                            {greyCompletionRate && (
+                                <View style={styles.infoView}>
+                                    <Text style={{fontFamily: 'spacemono', fontSize: 12, color: 'grey', paddingLeft: 30 }}>No data (yet)!</Text>
+                                </View>
+                            )}
+                            
+                        </View>
+                    </View>
 
                     <View style={styles.chartBox}>
                         <Text style={styles.chartHeading}>Focus timings</Text>
@@ -194,8 +397,6 @@ const DailyComponent = () => {
     
     )
 };
-
-export default DailyComponent;
 
 
 const styles = StyleSheet.create({

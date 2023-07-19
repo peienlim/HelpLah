@@ -16,12 +16,12 @@ export default function TabStack() {
   return (
     <Tab.Navigator screenOptions={{tabBarActiveTintColor: '#9AC791', headerShown: false, showLabel: false}}>
       <Tab.Screen 
-          name="Drawer" 
+          name="Main" 
           component = {DrawerStack} 
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='home-outline' color={color} size={size} />),}}
       />
       <Tab.Screen 
-          name="WeeklyScreen" 
+          name="Weekly" 
           component = {WeeklyScreen} 
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='calendar-outline' color={color} size={size} />),}}
       />
@@ -32,14 +32,14 @@ export default function TabStack() {
           listeners={({navigation}) => ({tabPress: event => event.preventDefault() & navigation.navigate("AddEvent") })}
       />
       <Tab.Screen 
-          name="FocusScreen" 
+          name="Focus" 
           component={FocusScreen} 
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='happy-outline' color={color} size={size} />), }}
       />
       <Tab.Screen 
-          name="StatisticsScreen" 
+          name="Stats" 
           component={StatisticsScreen}
-          options={{tabBarIcon: ({color, size}) => (<Ionicons name='people-outline' color={color} size={size} />), }}
+          options={{tabBarIcon: ({color, size}) => (<Ionicons name='stats-chart-outline' color={color} size={size} />), }}
       />
     </Tab.Navigator>
   );
