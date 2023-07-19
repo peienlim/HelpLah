@@ -6,9 +6,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
 
 import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
+import { width } from '@mui/system';
 
 import { getDailyFocusHr } from '../../hook/getDailyFocusHr';
 import { getDailyTaskCompleted } from '../../hook/getDailyTaskCompleted';
+import { getTotalDailyTask } from '../../hook/getTotalDailyTask';
+
+import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
+
 
 const DailyComponent = () => {
 
@@ -161,9 +166,25 @@ const DailyComponent = () => {
 
                     </View>
 
-                    <Text style={styles.tasksHeading}>Task Data: </Text>
-                    <View style={styles.tasksBox}>
-
+                        <Text style={styles.tasksHeading}>Task Data: </Text>
+                        <View style={styles.tasksBox}>
+                            <VictoryPie
+                                data={[
+                                    { x: "Tasks", y: 35 },
+                                    { x: "Others", y: 40 },
+                                    { x: "Events", y: 55 },
+                                    { x: "Class", y: 55 },
+                                ]}
+                                width={200}
+                                height={200}
+                                innerRadius={30}
+                                animate={{ easing: 'exp' }}
+                                padAngle={3}
+                                style={{ labels: { fontSize: 12 } }}
+                            />
+                        </View>
+                    <View>
+               
                     </View>
                     
                 </View> 
@@ -340,6 +361,8 @@ const styles = StyleSheet.create({
         width: 350,
         height: 500,
         borderRadius: 10,
+        justifyContent: 'center',
+        alignContent: 'center',
     }
 })
 

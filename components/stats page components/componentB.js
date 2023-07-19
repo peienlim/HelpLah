@@ -481,7 +481,6 @@ export default function WeeklyComponent() {
     )
 };
 
-
 const styles = StyleSheet.create({
 
     scroll: {
@@ -602,4 +601,4 @@ const styles = StyleSheet.create({
         fontSize: 20,
         paddingTop: 20,
     },
-})
+});
