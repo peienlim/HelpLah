@@ -2,21 +2,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import DrawerStack from './drawerNavigation';
 import WeeklyScreen from '../screens/weekly';
-<<<<<<< HEAD
-import FocusScreen from '../screens/statistics';
-import CommunityScreen from '../screens/community';
-=======
 import FocusScreen from '../screens/focus';
 import StatisticsScreen from '../screens/stats';
->>>>>>> beverley_branch
 
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View } from 'react-native';
-<<<<<<< HEAD
-=======
-
->>>>>>> beverley_branch
 
 const Tab = createBottomTabNavigator();
 const NewPlaceHolder = () => <View style= {{flex: 1, backgroundColor:"pink"}}></View>
@@ -38,11 +29,7 @@ export default function TabStack() {
           name="Add" 
           component = {NewPlaceHolder} 
           options={{tabBarIcon: ({color, size}) => (<Ionicons name='add-circle-outline' color={color} size={size} />),}}
-<<<<<<< HEAD
-          listeners={({navigation}) => ({tabPress: event => event.preventDefault() & navigation.navigate("CreateNew") })}
-=======
           listeners={({navigation}) => ({tabPress: event => event.preventDefault() & navigation.navigate("AddEvent") })}
->>>>>>> beverley_branch
       />
       <Tab.Screen 
           name="Focus" 

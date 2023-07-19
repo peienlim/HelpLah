@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
-<<<<<<< HEAD
-/* import { color } from 'react-native-reanimated';
-import { withSafeAreaInsets } from 'react-native-safe-area-context'; */
-
-import { db } from '../firebaseConfig2';
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
-=======
 import moment from 'moment';
 
 import DailyView from '../components/home page components/dailyView';
@@ -14,36 +7,16 @@ import Event from '../components/home page components/Event';
 
 import { db } from '../firebaseConfigDB';
 import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
->>>>>>> beverley_branch
 
 import { getAuth } from "firebase/auth";
 
 export default function HomeScreen({navigation}) {
 
-<<<<<<< HEAD
-=======
   // Retrieve's user's email from Firebase authentication
->>>>>>> beverley_branch
   const auth = getAuth();
   const userEmail = auth.currentUser.email;
 
   const [userData, setUserData] = useState({});
-<<<<<<< HEAD
-
-  const getUserInfo = async () => {
-    const q = query(collection(db, "users"), where("email", "==", userEmail));
-    const querySnapShot = await getDocs(q);
-    querySnapShot.forEach((doc) => {
-      console.log(doc.id, " => ", doc.data());
-      setUserData({
-        ...doc.data(),
-        id: doc.id,
-      })
-    });
-    console.log(userData);
-  }
-
-=======
   const [eventsDC, setEventsDC] = useState([]);
   const [eventComponents, setEventComponents] = useState([]);
   const [productiveHours, setProductiveHours] = useState(0);
@@ -68,13 +41,10 @@ export default function HomeScreen({navigation}) {
   };
 
   // handles side effect from changing the state of object
->>>>>>> beverley_branch
   useEffect(() => {
     getUserInfo();
   }, []);
 
-<<<<<<< HEAD
-=======
   const updateEvDescr = (descr) => {
     if (descr.startsWith('T: ') || descr.startsWith('C: ') || descr.startsWith('O: ') || descr.startsWith('E: ')) {
       return descr.substring(3);
@@ -199,19 +169,12 @@ export default function HomeScreen({navigation}) {
   }, []);
 
 
->>>>>>> beverley_branch
   return (
       <SafeAreaView style={styles.background}>
 
         <View style={styles.top}> 
-<<<<<<< HEAD
-          <Text style={{fontFamily: 'spacemono-bold'}}>Home Page</Text> 
-          <Text style={{fontFamily: 'spacemono-bold'}}>Hello {userData.name} !</Text>
-          <Text style={styles.date}>Mon, 12 June 2023</Text>
-=======
           <Text style={styles.hello}>Hello {userData.name ? userData.name : 'Loading...'}!</Text>
           <Text style={styles.date}>{formattedDate}</Text>
->>>>>>> beverley_branch
         </View>
 
         <View style={styles.todayce}>

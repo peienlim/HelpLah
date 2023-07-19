@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-/* import React from 'react';
-import { StyleSheet, Text, SafeAreaView, View, TextInput, TouchableOpacity } from 'react-native';
-import { getAuth, signOut } from "firebase/auth";
-import Ionicons from '@expo/vector-icons/Ionicons';
-=======
 import React, { useState, useEffect } from 'react';
 import { Button, StyleSheet, Text, SafeAreaView, TouchableOpacity, Alert, View, Modal, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -25,10 +19,8 @@ import { ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker from 'react-native-wheel-color-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
->>>>>>> beverley_branch
 
 export default function ProfileScreen({navigation}) {
-  const auth = getAuth();
 
   async function handleSignOut() {
     try {
@@ -539,12 +531,6 @@ export default function ProfileScreen({navigation}) {
 
   return (
       <SafeAreaView style={styles.background}>
-<<<<<<< HEAD
-
-        <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton} >
-            <Text style={{fontFamily: 'spacemono-bold'}}>Sign Out</Text>
-        </TouchableOpacity>
-=======
         
         <View style={uploadedBefore ? styles.nameEmailContainerNM : styles.nameEmailContainer}>
           <Text style = {{fontFamily: 'spacemono', fontSize: 15, paddingLeft: 15}}>Name and Email:</Text>
@@ -625,7 +611,6 @@ export default function ProfileScreen({navigation}) {
           textStyle={{fontFamily: 'spacemono', fontSize: 17, color: 'white',}}
           size={"large"}
         />
->>>>>>> beverley_branch
 
       </SafeAreaView>
     );
@@ -639,8 +624,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-<<<<<<< HEAD
-=======
   nameEmailContainerNM: {
     flex: 1,
     flexDirection: 'column',
@@ -654,23 +637,15 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
 
->>>>>>> beverley_branch
   signOutButton: {
     backgroundColor: '#9AC791',
     borderColor: '#9AC791',
     height: 35,
-<<<<<<< HEAD
-    width: 200,
-=======
     width: 150,
->>>>>>> beverley_branch
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
   },
-<<<<<<< HEAD
-}) */
-=======
 
   inputButton: {
     backgroundColor: '#E5E5E5', 
@@ -760,4 +735,3 @@ const styles = StyleSheet.create({
 
 });
 
->>>>>>> beverley_branch

@@ -8,18 +8,9 @@ import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } f
 import { db } from '../firebaseConfigDB';
 import { doc, setDoc } from 'firebase/firestore';
 
-<<<<<<< HEAD
-import { db } from '../firebaseConfig2';
-import { doc, setDoc } from 'firebase/firestore';
-
-export default function SignUpScreen({ navigation }) {
-    
-    const[name, setName] = useState('');
-=======
 export default function SignUpScreen({ navigation }) {
     
     const [name, setName] = useState('');
->>>>>>> beverley_branch
     const[email, setEmail] = useState('');
     const { pwVisibility, rightIcon, handlePwVisibility } =
       useTogglePwVisibility();
@@ -28,11 +19,7 @@ export default function SignUpScreen({ navigation }) {
     
     const auth = getAuth();
 
-<<<<<<< HEAD
-    // firebase authentication & add user data to firestore
-=======
     // Firebase authentication & add user data to firestore
->>>>>>> beverley_branch
     async function handleSignUp() {
         if (password != confirmPassword) {
             Alert.alert("Confirmed password does not match");
@@ -106,11 +93,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='happy-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {name} 
-<<<<<<< HEAD
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
-=======
                     style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
->>>>>>> beverley_branch
                     placeholder = "Name..."
                     onChangeText = {(name) => setName(name)}
                 />

@@ -104,11 +104,7 @@ export default function MainStack() {
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
       <Stack.Screen name="TabStack" component={TabStack} />
-<<<<<<< HEAD
-      <Stack.Screen name = "CreateNew" component={CreateNew} />
-=======
       <Stack.Screen name = "AddEvent" component={AddEvent} />
->>>>>>> beverley_branch
     </Stack.Navigator>
    
     );
