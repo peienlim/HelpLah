@@ -30,7 +30,7 @@ export default function App() {
 
   return (
     <NavigationContainer >
-        <MainStack />
+        <MainStack testID="main-stack"/>
     </NavigationContainer>
   );
 }

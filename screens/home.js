@@ -1,19 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
+<<<<<<< HEAD
 /* import { color } from 'react-native-reanimated';
 import { withSafeAreaInsets } from 'react-native-safe-area-context'; */
 
 import { db } from '../firebaseConfig2';
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+=======
+import moment from 'moment';
+
+import DailyView from '../components/home page components/dailyView';
+import Event from '../components/home page components/Event';
+
+import { db } from '../firebaseConfigDB';
+import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
+>>>>>>> beverley_branch
 
 import { getAuth } from "firebase/auth";
 
 export default function HomeScreen({navigation}) {
 
+<<<<<<< HEAD
+=======
+  // Retrieve's user's email from Firebase authentication
+>>>>>>> beverley_branch
   const auth = getAuth();
   const userEmail = auth.currentUser.email;
 
   const [userData, setUserData] = useState({});
+<<<<<<< HEAD
 
   const getUserInfo = async () => {
     const q = query(collection(db, "users"), where("email", "==", userEmail));
@@ -28,42 +43,199 @@ export default function HomeScreen({navigation}) {
     console.log(userData);
   }
 
+=======
+  const [eventsDC, setEventsDC] = useState([]);
+  const [eventComponents, setEventComponents] = useState([]);
+  const [productiveHours, setProductiveHours] = useState(0);
+  const [completedTasks, setCompletedTasks] = useState(0);
+  const [totalTasks, setTotalTasks] = useState(0);    
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const formattedDate = moment().format("ddd, DD MMMM YYYY");
+
+  // Function to retrieve user's name from firestore using their unique email address
+  const getUserInfo = async () => {
+      const q = query(collection(db, "users"), where("email", "==", userEmail));
+      const querySnapShot = await getDocs(q);
+      querySnapShot.forEach((doc) => {
+        //console.log(doc.id, " => ", doc.data());
+        setUserData({
+          ...doc.data(),
+          id: doc.id,
+        })
+      });
+      console.log(userData);
+  };
+
+  // handles side effect from changing the state of object
+>>>>>>> beverley_branch
   useEffect(() => {
     getUserInfo();
   }, []);
 
+<<<<<<< HEAD
+=======
+  const updateEvDescr = (descr) => {
+    if (descr.startsWith('T: ') || descr.startsWith('C: ') || descr.startsWith('O: ') || descr.startsWith('E: ')) {
+      return descr.substring(3);
+    } 
+    return descr;
+  }
+
+  // retrieve data from realtime database
+  const getEventsCat = () => {
+    try {
+      const eventsRef = collection(db, 'users', userEmail, 'events');
+
+      const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+        const eventsData = querySnapshot.docs.map((doc) => doc.data());
+
+        const filteredEvents = eventsData.filter((event) => { 
+          const eventStartDate = event.startDate.toDate();
+          const eventDate = eventStartDate.toDateString();
+          const currentDate = selectedDate.toDateString();
+          return eventDate === currentDate;
+        });
+
+        const eventDCs = filteredEvents
+          .filter((event) => event.category === 'event')
+          .map((event) => ({ colour: event.colour, description: updateEvDescr(event.description) }));
+          setEventsDC(eventDCs);
+          console.log(eventDCs);
+      });
+
+      // Return an unsubscribe function to stop listening for updates
+      return unsubscribe;
+    } catch (error) {
+      console.log(error);
+    }
+  };  
+
+  // handles side effect from changing the state of object
+  useEffect(() => {
+    getEventsCat();
+  }, []);
+
+  // for mapping the eventsDC data 
+  useEffect(() => {
+    const mappedComponents = eventsDC.map((event, index) => (
+      <Event key={index} colour={event.colour} description={event.description} />
+    ));
+    setEventComponents(mappedComponents);
+  }, [eventsDC]);
+
+
+  // retrieve data from realtime database
+  const getProductiveHours = () => {
+    try {
+      const eventsRef = collection(db, 'users', userEmail, 'events');
+
+      const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+        const eventsData = querySnapshot.docs.map((doc) => doc.data());
+
+        const filteredEvents = eventsData.filter((event) => { 
+          const eventStartDate = event.startDate.toDate();
+          const eventDate = eventStartDate.toDateString();
+          const currentDate = selectedDate.toDateString();
+          return eventDate === currentDate && event.completed;
+        });
+
+        const eventHours = filteredEvents.reduce((totalHours, event) => {
+          const start = moment(event.startDate.toDate());
+          const end = moment(event.endDate.toDate());
+          const duration = moment.duration(end.diff(start));
+          const hours = duration.asHours();
+          return totalHours + hours;
+        }, 0);
+
+        const roundedHours = eventHours.toFixed(1);
+        setProductiveHours(roundedHours);
+      });
+
+      // Return an unsubscribe function to stop listening for updates
+      return unsubscribe;
+    } catch (error) {
+      console.log(error);
+    }
+  };  
+
+  // handles side effect from changing the state of object
+  useEffect(() => {
+    getProductiveHours();
+  }, []);
+
+
+
+  // retrieve data from realtime database
+  const getTasksData = () => {
+    try {
+      const eventsRef = collection(db, 'users', userEmail, 'events');
+
+      const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+        const eventsData = querySnapshot.docs.map((doc) => doc.data());
+
+        const filteredTasks = eventsData.filter((event) => { 
+          const eventStartDate = event.startDate.toDate();
+          const eventDate = eventStartDate.toDateString();
+          const currentDate = selectedDate.toDateString();
+          return eventDate === currentDate && event.category === 'task';
+        });
+
+        const completed = filteredTasks.filter((task) => task.completed);
+        setCompletedTasks(completed.length);
+        setTotalTasks(filteredTasks.length);
+      });
+
+      // Return an unsubscribe function to stop listening for updates
+      return unsubscribe;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // handles side effect from changing the state of object
+  useEffect(() => {
+    getTasksData();
+  }, []);
+
+
+>>>>>>> beverley_branch
   return (
       <SafeAreaView style={styles.background}>
 
         <View style={styles.top}> 
+<<<<<<< HEAD
           <Text style={{fontFamily: 'spacemono-bold'}}>Home Page</Text> 
           <Text style={{fontFamily: 'spacemono-bold'}}>Hello {userData.name} !</Text>
           <Text style={styles.date}>Mon, 12 June 2023</Text>
+=======
+          <Text style={styles.hello}>Hello {userData.name ? userData.name : 'Loading...'}!</Text>
+          <Text style={styles.date}>{formattedDate}</Text>
+>>>>>>> beverley_branch
         </View>
 
         <View style={styles.todayce}>
+          <Text style={styles.header}>Today's Events:</Text>
           <ScrollView>
-            <Text style={{justifyContent:"flex-start"}}>classes</Text>
+            { eventComponents }
           </ScrollView>
-          <ScrollView>
-            <Text style={{justifyContent:"flex-end"}}>today's events:</Text>
-          </ScrollView>
-        </View>
+        </View> 
 
-        <View style={styles.dailyview}>
-          <Text>daily view</Text>
-          <ScrollView>
-            <Text>contents for scrolling</Text>
-          </ScrollView>
-        </View>
+        <DailyView/>
 
         <View style={styles.phc}>
-          <View style={{flex:1}}>
-            <Text style={{justifyContent:"flex-start"}}>productive hours:</Text>
+          <View style={{flex:1, paddingBottom:5}}>
+            <Text style={styles.header}>Productive Hours:</Text>
+            <View style={styles.phccontainer}>
+              <Text style={styles.phctext}>~{productiveHours}!</Text>
+            </View>
           </View>
 
-          <View style={{flex:1}}>
-            <Text style={{justifyContent:"flex-end"}}>completed:</Text>
+          <View style={{flex:1, paddingBotom: 5}}>
+            <Text style={styles.header}>Completed tasks:</Text>
+            <View style={styles.phccontainer}>
+                <Text style={styles.phctext}>{completedTasks}/{totalTasks}!</Text>
+            </View>
           </View>
         </View>
 
@@ -73,41 +245,52 @@ export default function HomeScreen({navigation}) {
 
 const styles = StyleSheet.create({
   background: {
-    backgroundColor: 'white', 
+    marginLeft: 3,
     flex: 1, 
-    paddingTop: 40,
+    //paddingTop: 40,
     paddingHorizontal: 20,
-    // justifyContent: 'flex-start'
-    // alignItems: 'center', 
-    // justifyContent: 'center',
   },
   top: {
     flex: 1,
-    // backgroundColor: 'red'
+    paddingTop: 20,
   },
   hello: {
-    // flex: 1
+    fontFamily: 'spacemono-bold',
+    fontSize: 25,
   },
   date: {
-    // flex: 1
+    fontFamily:"spacemono",
+    fontSize: 12,
+    paddingTop: 2,
   },
   todayce: {
-    flexDirection:"row",
-    flex: 2,
-    // backgroundColor:"white"
+    flex: 1.5,
+    paddingTop: 5,
   },
-  dvheader: {
-    flex: 1
-  },
-  dailyview: {
-    flex: 5,
-    // backgroundColor:"blue"
-  }, 
   phc: {
+    paddingTop: 10,
     flexDirection:"row",
-    flex: 2,
-    // backgroundColor:'green'
-  }
+    flex: 1.3,
+  },
+  phccontainer: {
+    flex: 0.8,
+    backgroundColor: "#E5E5E5",
+    width: "78%",
+    borderRadius: 10,
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "center",
+    paddingLeft: 6,
+  },
+  phctext: {
+    fontFamily:"spacemono",
+    fontSize: 12
+  },
+  header: {
+    fontFamily:"spacemono-bold", 
+    fontSize:13.5,
+    paddingBottom: 4
+  }, 
 
 
 })

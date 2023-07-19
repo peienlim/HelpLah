@@ -3,14 +3,23 @@ import { Text, View, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Aler
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useTogglePwVisibility } from '../hook/useTogglePwVisibility';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 
+import { db } from '../firebaseConfigDB';
+import { doc, setDoc } from 'firebase/firestore';
+
+<<<<<<< HEAD
 import { db } from '../firebaseConfig2';
 import { doc, setDoc } from 'firebase/firestore';
 
 export default function SignUpScreen({ navigation }) {
     
     const[name, setName] = useState('');
+=======
+export default function SignUpScreen({ navigation }) {
+    
+    const [name, setName] = useState('');
+>>>>>>> beverley_branch
     const[email, setEmail] = useState('');
     const { pwVisibility, rightIcon, handlePwVisibility } =
       useTogglePwVisibility();
@@ -19,7 +28,11 @@ export default function SignUpScreen({ navigation }) {
     
     const auth = getAuth();
 
+<<<<<<< HEAD
     // firebase authentication & add user data to firestore
+=======
+    // Firebase authentication & add user data to firestore
+>>>>>>> beverley_branch
     async function handleSignUp() {
         if (password != confirmPassword) {
             Alert.alert("Confirmed password does not match");
@@ -31,12 +44,39 @@ export default function SignUpScreen({ navigation }) {
             return;
         }
 
+        if (password.length < 6) {
+            Alert.alert("Password needs to have at least 6 characters!");
+            return;
+        }
+
         try {
+
+            // Check if the email already has a valid account
+            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+
+            if (signInMethods.length > 0) {
+                // Email is already registered with an account
+                Alert.alert("Email already has a valid account");
+                return;
+            }
+
             await createUserWithEmailAndPassword(auth, email, password);
             await navigation.navigate("LoginScreen");
             await addUser();
         } catch (error) {
-            Alert.alert("Check the validity of your email/Password length!");
+            Alert.alert("Check the validity of your email!");
+        }
+    }
+ 
+     async function addUser() {
+        try {
+            await setDoc(doc(db, "users", email),{
+                name: name,
+                email: email,
+            });
+            //console.log("New Document for user created");
+        } catch(error) {
+            console.log(error);
         }
     }
 
@@ -66,7 +106,11 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='happy-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {name} 
+<<<<<<< HEAD
                     style = {{fontFamily: 'spacemono', flexGrow: 1}}
+=======
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
+>>>>>>> beverley_branch
                     placeholder = "Name..."
                     onChangeText = {(name) => setName(name)}
                 />
@@ -76,7 +120,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='mail-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {email} 
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                     placeholder = "Email..."
                     onChangeText = {(email) => setEmail(email)}
                 />
@@ -86,7 +130,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='key-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {password} 
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                     placeholder = "Password..."
                     onChangeText = {(password) => setPassword(password)}
                     secureTextEntry = {pwVisibility}
@@ -100,7 +144,7 @@ export default function SignUpScreen({ navigation }) {
                 <Ionicons name='lock-closed-outline' color='black' size={15} paddingRight={10}/>
                 <TextInput
                     value = {confirmPassword} 
-                    style = {{fontFamily: 'spacemono', flexGrow: 1}}
+                    style = {{fontFamily: 'spacemono', flexGrow: 1, fontSize: 13}}
                     placeholder = "Confirm Password..."
                     onChangeText = {(confirmPassword) => setConfirmPassword(confirmPassword)}
                     secureTextEntry={pwVisibility}
@@ -112,7 +156,7 @@ export default function SignUpScreen({ navigation }) {
 
             <View style = {{paddingTop: 50}}>
                 <TouchableOpacity style={styles.signUpButton} onPress = {handleSignUp}>
-                    <Text style={{fontFamily: 'spacemono-bold'}}>Sign Up</Text>
+                    <Text style={{fontFamily: 'spacemono-bold', fontSize: 13}}>Sign Up</Text>
                 </TouchableOpacity>
             </View>
 
@@ -145,7 +189,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#9AC791',
         borderColor: '#9AC791',
         height: 35,
-        width: 200,
+        width: 175,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 10,
