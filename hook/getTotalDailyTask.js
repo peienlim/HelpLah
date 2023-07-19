@@ -30,7 +30,7 @@ export const getTotalDailyTask = (currDate) => {
 
     useEffect(() => {
         const count = totalTasks.length;
-        totalTaskCount(count);
+        setTotalTaskCount(count);
         console.log('Number of completed tasks:', count);
     }, [totalTasks]);
 
