@@ -5,6 +5,7 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
 
+import { VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
 import { width } from '@mui/system';
 
 import { getDailyFocusHr } from '../../hook/getDailyFocusHr';
@@ -15,8 +16,6 @@ import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 
 
 
 const DailyComponent = () => {
-
-    const[currDate, setCurrDate] = useState(new Date());
 
     // BAR CHART DUMMY DATA 
     const data = [
@@ -46,10 +45,24 @@ const DailyComponent = () => {
         { time: '2300', hours: 45 },
     ];
 
+    // colours array for completion rate pie chart - green for completed (index 0), grey for uncompleted (index 1)
+    const completionRateColorArr = ['#AFE1AF', '#909090'];
+
     const [currentWeekStart, setCurrentWeekStart] = useState(moment().startOf('isoWeek'));
     const [currentWeekEnd, setCurrentWeekEnd] = useState(moment().endOf('isoWeek'));
 
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const isCurrentWeek = currentWeekStart.isSame(moment().startOf('isoWeek'), 'week');
+
+    const [dailyFocusHour, setDailyFocusHour] = useState(0);
+    const [dailyTaskCompleted, setDailyTaskCompleted] = useState(0);
+    const [dailyTaskUncomplete, setDailyTaskUncomplete] = useState(0);
+
+    // for completion rate pie chart 
+    const [completionRateData, setCompletionRateData] = useState([]);
+    const [greyCompletionRate, setGreyCompletionRate] = useState(false);
+
+
 
     const navigateToPreviousWeek = () => {
         const previousWeekStart = currentWeekStart.clone().subtract(1, 'week');
@@ -67,6 +80,11 @@ const DailyComponent = () => {
         }
     };
 
+    const pickDate = (date) => {
+        setSelectedDate(date);
+        console.log('selected: ', selectedDate);
+    }
+
     return (
 
         <View>
@@ -78,9 +96,10 @@ const DailyComponent = () => {
 
                 {Array.from({ length: 7 }).map((_, index) => {
                     const date = currentWeekStart.clone().add(index, 'days');
+                    console.log('date: ', new Date(date));
                     const isCurrentDay = date.isSame(moment(), 'day');
                     return (
-                        <TouchableOpacity key={index} style={styles.dayDate}>
+                        <TouchableOpacity key={index} style={styles.dayDate} onPress={() => pickDate(new Date(date))}>
                             <Text style={[styles.dateText, isCurrentDay && styles.currentDayText]}>{date.format('D')}</Text>
                             <Text style={[styles.dayText, isCurrentDay && styles.currentDayText]}>{date.format('ddd')}</Text>
                         </TouchableOpacity>
@@ -97,16 +116,25 @@ const DailyComponent = () => {
 
                 <View style={{backgroundColor: 'white', alignItems: 'center'}}>
 
+                    <View style={styles.selectedDateContainer}>
+                        <Text style={styles.selectedDateText}>
+                            {moment(selectedDate).format('ddd, MMMM Do YYYY')}
+                        </Text>
+                    </View>
+
                     <View style={styles.overviewContainer}>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Time Focused (min):</Text>
-                            <Text style={styles.overviewValue}>{getDailyFocusHr(currDate)}</Text>
+                            <Text style={styles.overviewValue}>{1}</Text>
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Items Completed:</Text>
-                            <Text style={styles.overviewValue}>{getDailyTaskCompleted(currDate)}</Text>
+                            <Text style={styles.overviewValue}>{1}</Text>
                         </View>
+                        
                     </View>
+
+                    
 
                     <View style={styles.chartBox}>
                         <Text style={styles.chartHeading}>Focus timings</Text>
@@ -137,6 +165,7 @@ const DailyComponent = () => {
                         </VictoryChart>
 
                     </View>
+
                         <Text style={styles.tasksHeading}>Task Data: </Text>
                         <View style={styles.tasksBox}>
                             <VictoryPie
@@ -155,7 +184,7 @@ const DailyComponent = () => {
                             />
                         </View>
                     <View>
-                        
+               
                     </View>
                     
                 </View> 
@@ -189,11 +218,12 @@ const styles = StyleSheet.create({
     },
     
     dayDate: {
-        alignItems: 'center'
+        alignItems: 'center',
+        margin: 1.5,
     },
 
     dateText: {
-        fontSize: 13.5,
+        fontSize: 13,
         fontFamily: 'spacemono',
     },
 
@@ -207,8 +237,8 @@ const styles = StyleSheet.create({
     overviewContainer: {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-        marginTop: 20,
-        backgroundColor: '#AAAAAA',
+        marginTop: 10,
+        backgroundColor: '#E6E8E9',
         height: 70,
         width: 350,
         borderRadius: 10,
@@ -226,6 +256,87 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 15,
     },
+
+    selectedDateContainer: {
+        alignItems: 'center',
+        marginTop: 20,
+        //backgroundColor: 'blue',
+        //height: 30,
+        width: 175
+    },
+
+    selectedDateText: {
+        fontFamily: 'spacemono',
+        fontSize: 14,
+    },
+
+    // pie chart components style
+    box: {
+        alignItems: 'center',
+        backgroundColor: '#ABB0B8',
+        marginTop: 20,
+        marginHorizontal: 20,
+        borderRadius: 10,
+        height: 210
+    },
+    
+    pieHeading: {
+        fontFamily: 'spacemono',
+        fontSize: 19,
+        paddingTop: 20,
+        paddingBottom: 10,
+        flex: 1
+    },
+
+    pieContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        width: '100%',
+        flex: 6,
+    },
+    
+    horizontalSeparator: {
+        borderBottomWidth: 2.5,
+        borderColor: 'grey', 
+        width: 300,
+        //paddingTop: 10
+    },
+
+    verticalSeparator: {
+        borderRightWidth: 2.5,
+        borderColor: 'grey', 
+        height: '80%', 
+        marginLeft: 30, 
+    },
+
+    container: {
+        flex: 1,
+        backgroundColor: 'white',
+        alignItems: 'center',
+    },
+    
+
+    pieView: {
+        flex: 1,
+        alignItems: 'center',
+        marginLeft: 10
+    },
+
+    infoView: {
+        flex: 2,
+        paddingLeft: 25,
+    },
+
+    infoViewText: {
+        fontSize: 11
+    },
+
+    pie: {
+        alignItems: 'center',
+    },
+
 
     // chart style components
 
