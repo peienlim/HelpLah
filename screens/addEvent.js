@@ -83,7 +83,7 @@ export default function AddEvent({navigation}) {
         return 'E: ' + descr;
       } else if (category === 'class') {
         return 'C: ' + descr;
-      } else if (category === 'other') {
+      } else if (category === 'others') {
         return 'O: ' + descr;
       } else {
         return descr;

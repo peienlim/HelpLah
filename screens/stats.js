@@ -9,14 +9,21 @@ export default function StatisticsScreen({navigation}) {
   const [selectedTab, setSelectedTab] = useState('A');
   const [loading, setLoading] = useState(false);
 
+  const DailyComponentMemoized = React.memo(DailyComponent);
+  const WeeklyComponentMemoized = React.memo(WeeklyComponent);
+
+
   const SelectedTab = () => {
     switch (selectedTab) {
       case 'A': 
-        return <DailyComponent />;
+        //return <DailyComponent />;
+        return <DailyComponentMemoized />
       case 'B':
-        return <WeeklyComponent />;
+        //return <WeeklyComponent />;
+        return <WeeklyComponentMemoized />
       default: 
-        return <DailyComponent />;
+        //return <DailyComponent />;
+        return <DailyComponentMemoized />
     }
   };
 

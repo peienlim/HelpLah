@@ -3,14 +3,16 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { getAuth } from 'firebase/auth';
 import { db } from '../../firebaseConfigDB';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, getDocs, where, query } from 'firebase/firestore';
 
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import moment from 'moment';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
+import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis, VictoryLine } from 'victory-native';
+
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default function WeeklyComponent() {
     const auth = getAuth();
@@ -20,13 +22,14 @@ export default function WeeklyComponent() {
     const catPieColorArr = ['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF'];
     
     // colours array for module distribution pie chart 
-    const modPieColorArr = ['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF','#AED6F1', '#CCCCFF' ];
+    const modPieColorArr = ['#FF9191', '#FFC891', '#F7DC6F', '#9FE2BF','#AED6F1', '#CCCCFF', '#FADBD8', '#808080'];
 
     // colours array for completion rate pie chart - green for completed (index 0), grey for uncompleted (index 1)
     const completionRateColorArr = ['#AFE1AF', '#909090'];
 
     const [thisWeek, setThisWeek] = useState(false);
 
+    // for pie charts
     const [completionRateData, setCompletionRateData] = useState([]);
 
     const [greyMods, setGreyMods] = useState(false);
@@ -45,6 +48,15 @@ export default function WeeklyComponent() {
     const [defaultModPieLabel, setDefaultModPieLabel] = useState([]);
     const [defaultCategoryPieLabel, setDefaultCategoryPieLabel] = useState([]);
 
+    // for focus hours bar chart
+    const [focusHoursData, setFocusHoursData] = useState([]);
+    const [averageHours, setAverageHours] = useState(0);
+
+
+    const [loadingData, setLoadingData] = useState(false);
+
+    const daysOfWeek = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
+
     const MODULE_ENTRY_HEIGHT = 30;
 
     const numModEntries = modPieLabel.length;
@@ -52,16 +64,17 @@ export default function WeeklyComponent() {
     const modPieContainerHeight = numModEntries * MODULE_ENTRY_HEIGHT + 30;
     const catPieContainerHeight = numCatEntries * MODULE_ENTRY_HEIGHT + 30;
 
+    const [data, setData] = useState([]);
 
     // BAR CHART DUMMY DATA 
-    const data = [
-        { day: 'Mon', earnings: 13000 },
-        { day: 'Tues', earnings: 16500 },
-        { day: 'Wed', earnings: 14250 },
-        { day: 'Thurs', earnings: 19000 },
-        { day: 'Fri', earnings: 15908 },
-        { day: 'Sat', earnings: 18493 },
-        { day: 'Sun', earnings: 12398 },
+    const dummyData = [
+        { day: 'Mon', hours: 3 },
+        { day: 'Tues', hours: 5 },
+        { day: 'Wed', hours: 6 },
+        { day: 'Thurs', hours: 2 },
+        { day: 'Fri', hours: 7 },
+        { day: 'Sat', hours: 8 },
+        { day: 'Sun', hours: 8 },
     ];
   
     const [weekStart, setWeekStart] = useState(moment().startOf('isoWeek')); // Current week start
@@ -96,7 +109,8 @@ export default function WeeklyComponent() {
 
     const unsubscribeFunctions = [];
 
-    const getCompletedItemsWeek = async (start, end) => {
+    // helper function to get pie chart data 
+    const getPieData = async (start, end) => {
         try {
 
             const eventsRef = collection(db, 'users', userEmail, 'events');
@@ -187,8 +201,6 @@ export default function WeeklyComponent() {
                     console.log('cat names: ', categoryPieLabel);
                     console.log('corresponding colours: ', catPieColorArr);
 
-                    
-
                     const catTransformedData = Object.values(categoriesHoursMap);
                     console.log('cat transformed data: ', catTransformedData);
                     const categoryPieData = catTransformedData.map((hours) => {
@@ -212,8 +224,81 @@ export default function WeeklyComponent() {
         }
     };  
 
-    
+    const unsubscribeFunctionsFC = [];
 
+    // helper fucntion to retrieve data for focus chart from firestore 
+    const getFocusChartData = async (weekStart, weekEnd) => {
+
+        const weekDates = [];
+        const focusHours = [];
+
+        let currentDate = weekStart.clone();
+        while (currentDate.isSameOrBefore(weekEnd, 'day')) {
+            weekDates.push(currentDate.toDate());
+            currentDate.add(1, 'day');
+        }
+
+        try {
+
+            unsubscribeFunctionsFC.forEach(unsubscribe => unsubscribe());
+
+            const focusModeRef = collection(db, 'users', userEmail, 'focusMode');
+
+            const q = query(focusModeRef, where('timeStarted', '>=', weekStart.toDate()), where('timeStarted', '<=', weekEnd.toDate()));
+
+            const unsubscribe = onSnapshot(q, (querySnapshot) => {
+
+                for (let i = 0; i < 7; i++) {
+                    const date = weekDates[i];
+
+                    const focusData = querySnapshot.docs.map((doc) => doc.data());
+    
+                    const filteredData = focusData.filter((focusEvent) => {
+                        const focusEventDate = focusEvent.timeStarted.toDate();
+                        return focusEventDate.toDateString() === date.toDateString();
+                    });
+        
+                    const sumOfDurations = filteredData.reduce((sum, focusEvent) => {
+                        return sum + focusEvent.duration;
+                    }, 0);
+
+                    console.log('day: ', i + 1, ' duration: ', sumOfDurations);
+
+                    focusHours.push(sumOfDurations);
+                }
+
+                console.log(focusHours);
+
+                const formattedData = focusHours.map((seconds, index) => ({
+                    day: daysOfWeek[index],
+                    hours: isNaN(seconds) ? 0 : (seconds / 3600),
+                }));
+                
+                console.log('focus hours data: ', formattedData);
+
+                setFocusHoursData(formattedData);
+
+                const totalHours = formattedData.reduce((acc, data) => acc + data.hours, 0);
+                const avgHrs = totalHours / formattedData.length;
+
+                console.log('Average hours:', avgHrs.toFixed(2)); 
+
+                setAverageHours(avgHrs.toFixed(2));
+
+            });
+
+            unsubscribeFunctionsFC.push(unsubscribe);
+
+            // Return an unsubscribe function to stop listening for updates
+            return unsubscribe;
+
+        } catch (error) {
+            console.error('error getting focus chart data: ', error);
+        }
+
+    }
+    
+    // main function calling other helper functions to retrieve data 
     const getWeekData = async () => {
         try {
 
@@ -225,30 +310,32 @@ export default function WeeklyComponent() {
             setGreyCats(true);
             setGreyCompletionRate(true);
 
-            await getCompletedItemsWeek(weekStart, weekEnd);
-
+            await getPieData(weekStart, weekEnd);
             console.log('Number of Completed Events:', numComplete);
             console.log('Number of Incompleted Events:', numIncomplete);
-   
+
+
+            await getFocusChartData(weekStart, weekEnd);
+            console.log('focus hours data: ', focusHoursData);
+
+
 
         } catch (error) {
             console.log(error);
         }
             
     }
-      
+
+         
     useEffect(() => {
         getWeekData();
 
         // Cleanup function to unsubscribe from Firebase Firestore listeners when the component unmounts.
         return () => {
             unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+            unsubscribeFunctionsFC.forEach(unsubscribe => unsubscribe());
         };
     }, [weekStart, weekEnd]);
-
-    const getInfoViewText = (label) => {
-        return `${label} - ${modPieData[index].y.toFixed(2)} hrs`
-    }
 
     return (
         <View>
@@ -358,7 +445,7 @@ export default function WeeklyComponent() {
                                         height={200}
                                         colorScale={greyMods ? ['#939799'] : modPieColorArr}
                                         innerRadius={30}
-                                        animate={greyMods ? {} : { easing: 'exp', duration: 2000 }}
+                                        animate={greyMods ? {} : { easing: 'exp', duration: 1000 }}
                                         padAngle={3}
                                         style={{ labels: { fontSize: 12 } }}
                                         labels={defaultModPieLabel}
@@ -406,7 +493,7 @@ export default function WeeklyComponent() {
                                         height={200}
                                         colorScale={greyCompletionRate ? ['#939799'] : completionRateColorArr}
                                         innerRadius={30}
-                                        animate={greyCompletionRate ? {} : { easing: 'exp', duration: 2000 }}
+                                        animate={greyCompletionRate ? {} : { easing: 'exp', duration: 1000 }}
                                         padAngle={3}
                                         style={{ labels: { fontSize: 12 } }}
                                         labels={[' ', ' ']}
@@ -445,37 +532,43 @@ export default function WeeklyComponent() {
                     </View>
 
                     <View style={styles.chartBox}>
-                        <Text style={styles.chartHeading}>Focus hours for the week</Text>
-                        <VictoryChart width={330} theme={VictoryTheme.material}>
+                        <Text style={styles.chartHeading}>Focus hours</Text>
+                        <View style={styles.horizontalSeparator}/>
+                        <Text style ={styles.averageHours}>Weekly average: {averageHours} h</Text>
+
+                        <VictoryChart width={380} height={250} domainPadding={15}>
                             <VictoryBar 
-                                data={data} 
-                                //x="quarter" 
-                                y="earnings" 
-                                labels={['2.7', '4', '3', '5', '4.3', '4.9', '2.4']}
+                                data={focusHoursData} 
+                                x='day'
+                                y='hours' 
+                                labels={({ datum }) => datum.hours === 0 ? ' ' : datum.hours.toFixed(2) + ' h'}
                                 style={{
-                                    data: { fill: "tomato", opacity: 0.7 },
+                                    data: { fill: '#AED6F1', opacity: 0.7 },
+                                    labels: { fontSize: 10, },
                                 }}
+                                barWidth={15}
+                                maxDomain={24}
                             />
-                            <VictoryAxis dependentAxis
-                                style={{ 
-                                    axis: {stroke: "transparent"}, 
-                                    //ticks: {stroke: "transparent"},
-                                    tickLabels: { fill:"transparent"} 
-                                }} 
+                            <VictoryAxis
+                                tickValues={[1, 2, 3, 4, 5, 6, 7]}
+                                tickFormat={['mon', 'tue', 'wed', 'thurs', 'fri', 'sat', 'sun']}
                             />
                             <VictoryAxis crossAxis
                                 style={{ 
-                                    axis: {stroke: "transparent"}, 
-                                    ticks: {stroke: "transparent"},
-                                    //tickLabels: { fill:"transparent"} 
+                                    axis: {stroke: "#909090"}, 
+                                    tickLabels: { fill:"transparent"} 
                                 }} 
                             />
+
                         </VictoryChart>
+
                     </View>
                     
                 </View> 
 
             </ScrollView>
+
+            
         </View>
 
     )
@@ -593,12 +686,24 @@ const styles = StyleSheet.create({
     // chart style components
 
     chartBox: {
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#ABB0B8',
+        padding: 20,
+        margin: 20,
+        width: '90%',
+        borderRadius: 10,
     },
 
     chartHeading: {
         fontFamily: 'spacemono',
         fontSize: 20,
-        paddingTop: 20,
+        //paddingTop: 10,
+        paddingBottom: 10,
     },
+
+    averageHours: {
+        fontFamily: 'spacemono',
+        fontSize: 15,
+        paddingTop: 10
+    }
 });

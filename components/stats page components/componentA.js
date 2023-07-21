@@ -5,7 +5,7 @@ import { useIsFocused } from '@react-navigation/native';
 
 import { getAuth } from 'firebase/auth';
 import { db } from '../../firebaseConfigDB';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot } from 'firebase/firestore';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
@@ -73,6 +73,9 @@ export default function DailyComponent() {
     const [completionRateData, setCompletionRateData] = useState([]);
     const [label, setLabel] = useState([]);
     const [greyCompletionRate, setGreyCompletionRate] = useState(false);
+
+    const [completedBlocks, setCompletedBlocks] = useState([]);
+    const [uncompletedBlocks, setUncompletedBlocks] = useState([]);
 
 
     const navigateToPreviousWeek = () => {
@@ -163,6 +166,110 @@ export default function DailyComponent() {
     
     }
 
+    const unsubscribeFunctions = [];
+
+    const getBlocksToDisplay = async (dt) => {
+        
+        try {
+
+            unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+            unsubscribeFunctions.length = 0; // Clear the array
+
+            const eventsRef = collection(db, 'users', userEmail, 'events');
+            let eventsData = []; // Initialize the variable to an empty array
+
+            unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+
+            const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+                eventsData = querySnapshot.docs.map((doc) => doc.data());
+
+                const weekEvents = eventsData.filter((event) => { 
+                    const eventStartDate = event.startDate.toDate();
+                    //console.log(eventStartDate);
+                    return eventStartDate.toDateString() === dt.toDateString();
+                }); 
+
+                const completedEvents = weekEvents.filter((event) => {
+                    return event.completed === true;
+                })  
+
+                const complete = completedEvents.map((event) => ({
+                    category: event.category,
+                    startDate: event.startDate.toDate(),
+                    endDate: event.endDate.toDate(),
+                    color: event.colour,
+                    description: event.description.slice(3),
+                    module: event.module,
+                }));
+
+                console.log('completed events: ', complete);
+                setCompletedBlocks(complete);
+
+                const uncompletedEvents = weekEvents.filter((event) => {
+                    return event.completed === false;
+                })  
+
+                const uncomplete = uncompletedEvents.map((event) => ({
+                    category: event.category,
+                    startDate: event.startDate.toDate(),
+                    endDate: event.endDate.toDate(),
+                    color: event.colour,
+                    description: event.description.slice(3),
+                    module: event.module,
+                }));
+
+                console.log('uncompleted events: ', uncomplete);
+                setUncompletedBlocks(uncomplete);
+
+            });
+
+            unsubscribeFunctions.push(unsubscribe);
+
+            // Return an unsubscribe function to stop listening for updates
+            return unsubscribe;
+
+        } catch (error) {
+            console.error('error getting blocks to displayy: ', error);
+        }
+
+    }
+
+    const getReqData = async (date) => {
+        setSelectedDate(date);
+        console.log('selected: ', selectedDate);
+
+        try {
+            const dfh = await getDailyFocusHr(date);
+            console.log('daily focus hour: ', dfh);
+
+            const dtc = await getDailyTaskCompleted(date);
+            console.log('daily tasks completed: ', dtc);
+
+            const tdt = await getTotalDailyTask(date);
+            console.log('daily TOTAL tasks: ', tdt);
+
+            setDailyFocusHour(dfh);
+            setDailyTaskCompleted(dtc);
+            setDailyTotalTask(tdt);
+
+            await getBlocksToDisplay(date);
+
+            console.log('completed blocks: ', completedBlocks);
+            console.log('uncompleted blocks: ', uncompletedBlocks);
+
+            return {
+                dfh,
+                dtc,
+                tdt
+            }
+
+        } catch (error) {
+            console.error('error getting req data: ', error);
+            throw error; 
+        }
+
+    }
+
     const pickDate = async (date) => {
 
         const selectedDateLocal = moment(selectedDate).local();
@@ -197,42 +304,25 @@ export default function DailyComponent() {
 
     }
 
-    const getReqData = async (date) => {
-        setSelectedDate(date);
-        console.log('selected: ', selectedDate);
-
-        try {
-            const dfh = await getDailyFocusHr(date);
-            console.log('daily focus hour: ', dfh);
-
-            const dtc = await getDailyTaskCompleted(date);
-            console.log('daily tasks completed: ', dtc);
-
-            const tdt = await getTotalDailyTask(date);
-            console.log('daily TOTAL tasks: ', tdt);
-
-            setDailyFocusHour(dfh);
-            setDailyTaskCompleted(dtc);
-            setDailyTotalTask(tdt);
-
-            return {
-                dfh,
-                dtc,
-                tdt
-            }
-
-        } catch (error) {
-            console.error('error getting req data: ', error);
-            throw error; 
-        }
-        
-
-    }
 
     useEffect(() => {
-        const today = new Date();
-        pickDate(today);
-    }, []);
+        pickDate(selectedDate);
+
+        return () => {
+            unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+        };
+    }, [selectedDate]);
+
+    const TaskBox = ({ description, duration, category, color, module }) => {
+        return (
+          <View style={[styles.taskContainer, { backgroundColor: color, opacity: 0.9 }]}>
+            <Text style={styles.taskDescription}>{description}</Text>
+            <Text style={styles.smallText}>Duration: {duration} minutes</Text>
+            <Text style={styles.smallText}>Module: {module}</Text>
+            <Text style={styles.smallText}>Category: {category}</Text>
+          </View>
+        );
+      };
 
     return (
 
@@ -274,7 +364,7 @@ export default function DailyComponent() {
                     <View style={styles.overviewContainer}>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Time Focused (min):</Text>
-                            <Text style={styles.overviewValue}>{dailyFocusHour}</Text>
+                            <Text style={styles.overviewValue}>{(dailyFocusHour/60)}</Text>
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Items Completed:</Text>
@@ -339,56 +429,41 @@ export default function DailyComponent() {
                         </View>
                     </View>
 
-                    <View style={styles.chartBox}>
-                        <Text style={styles.chartHeading}>Focus timings</Text>
-                        <VictoryChart width={370} theme={VictoryTheme.material}>
-                            <VictoryBar 
-                                data={data} 
-                                //x="quarter" 
-                                y="hours" 
-                                labels={['45.7', '4', '3', '5', '4.3', '4.9', '45.4']}
-                                style={{
-                                    data: { fill: "tomato", opacity: 0.7 },
-                                }}
-                            />
-                            <VictoryAxis dependentAxis
-                                style={{ 
-                                    axis: {stroke: "transparent"}, 
-                                    //ticks: {stroke: "transparent"},
-                                    tickLabels: { fill:"transparent"} 
-                                }} 
-                            />
-                            <VictoryAxis crossAxis
-                                style={{ 
-                                    axis: {stroke: "transparent"}, 
-                                    ticks: {stroke: "transparent"},
-                                    //tickLabels: { fill:"transparent"} 
-                                }} 
-                            />
-                        </VictoryChart>
-
-                    </View>
-
-                        <Text style={styles.tasksHeading}>Task Data: </Text>
+                    {/* Display Completed Tasks */}
+                    {completedBlocks.length > 0 && (
                         <View style={styles.tasksBox}>
-                            <VictoryPie
-                                data={[
-                                    { x: "Tasks", y: 35 },
-                                    { x: "Others", y: 40 },
-                                    { x: "Events", y: 55 },
-                                    { x: "Class", y: 55 },
-                                ]}
-                                width={200}
-                                height={200}
-                                innerRadius={30}
-                                animate={{ easing: 'exp' }}
-                                padAngle={3}
-                                style={{ labels: { fontSize: 12 } }}
+                        <Text style={styles.tasksHeading}>Completed Tasks</Text>
+                        <View style={styles.horizontalSeparator}/>
+                        {completedBlocks.map((task, index) => (
+                            <TaskBox
+                                key={index}
+                                description={task.description}
+                                duration={moment(task.endDate).diff(moment(task.startDate), 'minutes')}
+                                category={task.category}
+                                color={task.color}
+                                module={task.module}
                             />
+                        ))}
                         </View>
-                    <View>
-               
-                    </View>
+                    )}
+
+                    {/* Display Uncompleted Tasks */}
+                    {uncompletedBlocks.length > 0 && (
+                        <View style={styles.tasksBox}>
+                        <Text style={styles.tasksHeading}>Uncompleted Tasks</Text>
+                        <View style={styles.horizontalSeparator}/>
+                        {uncompletedBlocks.map((task, index) => (
+                            <TaskBox
+                                key={index}
+                                description={task.description}
+                                duration={moment(task.endDate).diff(moment(task.startDate), 'minutes')}
+                                category={task.category}
+                                color={task.color}
+                                module={task.module}
+                            />
+                        ))}
+                        </View>
+                    )}
                     
                 </View> 
 
@@ -402,7 +477,8 @@ export default function DailyComponent() {
 const styles = StyleSheet.create({
 
     scroll: {
-        height: 600,
+        height: 578,
+        backgroundColor: 'white'
     },
 
     // top date bar component styles
@@ -476,6 +552,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#ABB0B8',
         marginTop: 20,
+        marginBottom: 10,
         marginHorizontal: 20,
         borderRadius: 10,
         height: 210
@@ -539,31 +616,48 @@ const styles = StyleSheet.create({
     },
 
 
-    // chart style components
-
-    chartBox: {
-        alignItems: 'center'
-    },
-
-    chartHeading: {
-        fontFamily: 'spacemono',
-        fontSize: 20,
-        paddingTop: 20,
-    },
-
     // tasks style components
+    taskContainer: {
+        width: '90%',
+        padding: 10,
+        marginTop: 15,
+        borderRadius: 5,
+    },
+
+    taskDescription: {
+        fontFamily: 'spacemono',
+        fontSize: 15,
+        marginBottom: 5,
+    },
+
+    smallText: {
+        fontFamily: 'spacemono',
+        fontSize: 11,
+        color: '#424347',
+        marginBottom: 5,
+    },
+
+    taskCategory: {
+        fontFamily: 'spacemono',
+        fontSize: 11,
+        color: '#424347',
+    },
+
+    tasksBox: {
+        backgroundColor: '#86888e',
+        width: '90%',
+        padding: 20,
+        marginTop: 10,
+        marginBottom: 10,
+        borderRadius: 10,
+    },
+
     tasksHeading: {
         fontFamily: 'spacemono',
-        fontSize: 20,
-        paddingTop: 20,
+        fontSize: 19,
+        color: 'black',
+        marginBottom: 10,
+        alignSelf: 'center',
     },
-    tasksBox: {
-        backgroundColor: 'grey',
-        width: 350,
-        height: 500,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignContent: 'center',
-    }
 })
 
