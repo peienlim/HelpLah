@@ -157,7 +157,7 @@ export default function AddEvent({navigation}) {
       }
 
       if (date.getDate() > endDate.getDate()) {
-        Alert.alert("StartDate is alter than EndDate")
+        Alert.alert("StartDate is later than EndDate")
         return;
       }
 
