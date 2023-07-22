@@ -27,7 +27,7 @@ export default function AddEvent({navigation}) {
 
     const [uploadedBefore, setUploadedBefore] = useState(false);
 
-    const [category, setCategory] = useState("task");
+    const [category, setCategory] = useState("");
     const categories = [
       {key: '1', value: 'class'},
       {key: '2', value: 'event'},
@@ -148,6 +148,21 @@ export default function AddEvent({navigation}) {
     async function handleAddEvent() {
       if (descr === "") {
         Alert.alert("Description needed!")
+        return;
+      }
+
+      if (category === "") {
+        Alert.alert("Category needed")
+        return;
+      }
+
+      if (date.getDate() > endDate.getDate()) {
+        Alert.alert("Start Date is Later than End Date")
+        return;
+      }
+
+      if (date.getDate() === endDate.getDate() && date.getTime() > endDate.getTime()) {
+        Alert.alert("Start Time is Later than EndTime")
         return;
       }
 

@@ -13,7 +13,7 @@ export const uploadFocusData = (duration, timeStarted) => {
     async function handleUploadFocusData() {
         try {
             const uniqueID = generateUUID(15);
-            const docRef = doc(db, 'users', userEmail, "focusMode", uniqueID);
+            const docRef = doc(db, 'users', userEmail, "focusEvent", uniqueID);
             await setDoc(docRef, {
                 id: uniqueID,
                 duration: duration,

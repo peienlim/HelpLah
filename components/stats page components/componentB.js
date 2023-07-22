@@ -242,7 +242,7 @@ export default function WeeklyComponent() {
 
             unsubscribeFunctionsFC.forEach(unsubscribe => unsubscribe());
 
-            const focusModeRef = collection(db, 'users', userEmail, 'focusMode');
+            const focusModeRef = collection(db, 'users', userEmail, 'focusEvent');
 
             const q = query(focusModeRef, where('timeStarted', '>=', weekStart.toDate()), where('timeStarted', '<=', weekEnd.toDate()));
 

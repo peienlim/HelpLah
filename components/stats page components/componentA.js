@@ -96,7 +96,7 @@ export default function DailyComponent() {
 
     const getDailyFocusHr = async (dt) => {
 
-        const eventsRef = collection(db, 'users', userEmail, 'focusMode');
+        const eventsRef = collection(db, 'users', userEmail, 'focusEvent');
 
         try {
             const querySnapshot = await getDocs(eventsRef);
