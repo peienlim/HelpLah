@@ -152,22 +152,27 @@ export default function AddEvent({navigation}) {
       }
 
       if (category === "") {
-        Alert.alert("Category needed")
+        Alert.alert("Category needed!")
         return;
       }
 
       if (date.getDate() > endDate.getDate()) {
-        Alert.alert("Start Date is Later than End Date")
+        Alert.alert("StartDate is alter than EndDate")
         return;
       }
 
       if (date.getDate() === endDate.getDate() && date.getTime() > endDate.getTime()) {
-        Alert.alert("Start Time is Later than EndTime")
+        Alert.alert("StartTime is later than EndTime")
         return;
       }
 
       if (date.getDate() === endDate.getDate() && date.getTime() === endDate.getTime()) {
         Alert.alert("StartDate and EndDate is exactly the same!")
+        return;
+      }
+
+      if (selectedMod === "default") {
+        Alert.alert("Module needed!")
         return;
       }
 

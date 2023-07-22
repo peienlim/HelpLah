@@ -563,7 +563,7 @@ export default function ProfileScreen({navigation}) {
           {!loading && !deleting && (
             <View style={styles.nusmodsButton}> 
               <Button 
-                title={!uploadedBefore ? "Upload NUSMods timetable" : 'Delete uploaded NUSMods timetable'} 
+                title={!uploadedBefore ? "Upload NUSMods timetable as ics file" : 'Delete uploaded NUSMods timetable'} 
                 onPress={!uploadedBefore ? pickDoc : handleDeleteTimetable} 
               />
             </View>
