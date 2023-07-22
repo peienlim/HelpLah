@@ -54,8 +54,7 @@ export default function WeeklyComponent() {
     const [focusHoursData, setFocusHoursData] = useState([]);
     const [averageHours, setAverageHours] = useState(0);
 
-
-    const [loadingData, setLoadingData] = useState(false);
+    const [totalFocus, setTotalFocus] = useState(0);
 
     const daysOfWeek = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
 
@@ -287,6 +286,7 @@ export default function WeeklyComponent() {
                 console.log('Average hours:', avgHrs.toFixed(2)); 
 
                 setAverageHours(avgHrs.toFixed(2));
+                setTotalFocus(totalHours.toFixed(2));
 
             });
 
@@ -376,7 +376,7 @@ export default function WeeklyComponent() {
                     <View style={styles.overviewContainer}>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Total Time Focused (h):</Text>
-                            <Text style={styles.overviewValue}>{0}</Text>
+                            <Text style={styles.overviewValue}>{totalFocus}</Text>
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Total Items Completed:</Text>

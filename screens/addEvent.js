@@ -153,23 +153,23 @@ export default function AddEvent({navigation}) {
         return;
       }
 
-      if (category === "") {
-        Alert.alert("Category needed!")
-        return;
-      }
-
       if (date.getDate() > endDate.getDate()) {
-        Alert.alert("StartDate is later than EndDate")
+        Alert.alert("Start Date is later than End Date!")
         return;
       }
 
       if (date.getDate() === endDate.getDate() && date.getTime() > endDate.getTime()) {
-        Alert.alert("StartTime is later than EndTime")
+        Alert.alert("Start Time is later than End Time!")
         return;
       }
 
       if (date.getDate() === endDate.getDate() && date.getTime() === endDate.getTime()) {
-        Alert.alert("StartDate and EndDate is exactly the same!")
+        Alert.alert("Start Time and End Time is exactly the same!")
+        return;
+      }
+      
+      if (category === "") {
+        Alert.alert("Category needed!")
         return;
       }
 
