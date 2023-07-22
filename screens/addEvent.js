@@ -171,7 +171,7 @@ export default function AddEvent({navigation}) {
         return;
       }
 
-      if (selectedMod === "default") {
+      if (selectedMod === "default" && uploadedBefore) {
         Alert.alert("Module needed!")
         return;
       }
