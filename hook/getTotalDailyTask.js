@@ -3,6 +3,8 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
 import { collection, onSnapshot } from 'firebase/firestore';
 
+import { addFirestoreSubscription } from '../FirestoreManager';
+
 export const getTotalDailyTask = (currDate) => {
     const [totalTasks, setTotalTasks] = useState([]);
     const [totalTaskCount, setTotalTaskCount] = useState(0);
@@ -25,6 +27,8 @@ export const getTotalDailyTask = (currDate) => {
       
             setTotalTasks(filteredData);
         });
+
+        addFirestoreSubscription(unsubscribe);
         return unsubscribe;
     }, []);
 
