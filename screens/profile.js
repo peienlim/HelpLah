@@ -20,6 +20,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker from 'react-native-wheel-color-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+
 import { cleanupFirestoreSubscriptions, addFirestoreSubscription } from '../FirestoreManager';
 
 
@@ -524,6 +525,50 @@ export default function ProfileScreen({navigation}) {
     
   }
 
+  const ModalInfo = ({modalVisible, setModalVisible})=>{
+    return (
+       <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}
+        >
+
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+
+            <View style={{ borderRadius: 10, width: '90%', height: 450, backgroundColor: "#DAF4F0", justifyContent: "center", alignItems: "center" }}>
+    
+              <Text style={styles.infoHeading}>How do I upload my NUSMods timetable? </Text>
+              <Text style={styles.infoContent}>1. Go to the NUSMods website. </Text>
+              <Text style={styles.infoContent2}>2. With your planned timetable, click on the Download button and choose the iCalender File (.ics) option. </Text>
+              <Text style={styles.infoContent}>3. Click on the 'Upload NUSMods timetable' button and pick the downloaded .ics file. Please do not leave the page while file is uploading! </Text>
+              <Text style={styles.infoContent}>4. Once the upload is complete, click on each module to customise its colour. </Text>
+              <Text style={styles.infoContent}>Note: please customise the colours before creating any related classes/events/tasks/others! </Text>
+              <TouchableOpacity onPress={(() => setModalVisible(false))}>
+                <Ionicons name="close-outline" size={24} color="black" />
+              </TouchableOpacity>
+    
+            </View>
+          </View>
+        </Modal>
+    )
+  }
+
+  const TextInputWithModal = ()=>{
+    const [modalVisible, setModalVisible] = React.useState(false);
+    return (
+      <View>
+          <TouchableOpacity onPress={()=>{setModalVisible(true)}}>
+            <Ionicons name="information-circle-outline" size={22} color="gray" paddingTop={6} />
+          </TouchableOpacity>
+        <ModalInfo modalVisible={modalVisible} setModalVisible={setModalVisible}/>
+      </View>
+    )
+  }
+  
+
   return (
       <SafeAreaView style={styles.background}>
         
@@ -558,9 +603,10 @@ export default function ProfileScreen({navigation}) {
           {!loading && !deleting && (
             <View style={styles.nusmodsButton}> 
               <Button 
-                title={!uploadedBefore ? "Upload NUSMods timetable as ics file" : 'Delete uploaded NUSMods timetable'} 
+                title={!uploadedBefore ? "Upload NUSMods timetable" : 'Delete uploaded NUSMods timetable'} 
                 onPress={!uploadedBefore ? pickDoc : handleDeleteTimetable} 
               />
+              <TextInputWithModal/>
             </View>
           )}
       
@@ -612,6 +658,31 @@ export default function ProfileScreen({navigation}) {
 }
 
 const styles = StyleSheet.create({
+
+  infoHeading: {
+    fontFamily: 'spacemono-bold',
+    fontSize: 15.5,
+    paddingBottom: 10,
+  },
+
+  infoContent: {
+    paddingHorizontal: 14.5,
+    //paddingTop: 10,
+    fontFamily: 'spacemono',
+    alignContent: 'center',
+    margin: 10,
+    fontSize: 12.5,
+  },
+
+  infoContent2: {
+    paddingHorizontal: 17.5,
+    //paddingTop: 10,
+    fontFamily: 'spacemono',
+    alignContent: 'center',
+    margin: 10,
+    fontSize: 12.5,
+  },
+
   background: {
     backgroundColor: 'white', 
     flex: 1, 
@@ -694,6 +765,7 @@ const styles = StyleSheet.create({
 
   nusmodsButton: {
     paddingTop: 20,
+    flexDirection: 'row'
   },
 
   loadingContainer: {

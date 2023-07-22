@@ -55,14 +55,14 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
         setCurrTime(new Date());
     };
 
-    /* const stopTimer = () => {
+    const stopTimer = () => {
         setIsActive(false);
     };
 
     const resetTimer = () => {
         setIsActive(false);
         setTime(duration);
-    }; */
+    }; 
 
     return (
         <View style={styles.background}>
@@ -75,26 +75,26 @@ const CountDownTimer = ({duration, closeModal}) => { // duration units is in sec
                 <Text style={styles.timerText}> {formatTime(time)} </Text>
             </TouchableOpacity>
 
-            <View style={{flexDirection: "row", paddingTop: 25}}>
-                <View style={{padding: 10}}>
-                    <TouchableOpacity style={styles.button} onPress={startTimer} testID= 'start-button'>
-                        <Text style={{fontFamily:'spacemono-bold'}}>Start</Text>
-                    </TouchableOpacity>
+            {!isActive && (
+                <View style={{flexDirection: "row", paddingTop: 25}}>
+                    <View style={{padding: 10}}>
+                        <TouchableOpacity style={styles.button} onPress={startTimer} testID= 'start-button'>
+                            <Text style={{fontFamily:'spacemono-bold'}}>Start</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-
-                {/* <View style={{padding: 10}}>
-                    <TouchableOpacity style={styles.button} onPress={stopTimer}>
-                        <Text style={{fontFamily:'spacemono-bold'}}>Pause</Text>
-                    </TouchableOpacity>
-                </View> */}
-
-                {/* <View style={{padding: 10}}>
-                    <TouchableOpacity style={styles.button} onPress={resetTimer}>
-                        <Text style={{fontFamily:'spacemono-bold'}}>Reset</Text>
-                    </TouchableOpacity>
-                </View> */}
+            )}
+            
+            {isActive && (
+                <View style={{flexDirection: "row", paddingTop: 25}}>
+                    <View style={{padding: 10}}>
+                        <TouchableOpacity style={styles.button} onPress={resetTimer}>
+                            <Text style={{fontFamily:'spacemono-bold'}}>Reset</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
             </View>
-        </View>
     );
 }
 
