@@ -12,6 +12,8 @@ import { handleEventLongPress } from '../hook/handleEventLongPress';
 import { handleDragEvent } from '../hook/handleDragEvent';
 import { milliseconds } from 'date-fns';
 
+import { addFirestoreSubscription } from '../FirestoreManager';
+
 export default function WeeklyScreen({navigation}) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [myEvents, setMyEvents] = useState([]);
@@ -66,6 +68,7 @@ export default function WeeklyScreen({navigation}) {
         //console.log(myEvents);
       });
   
+      addFirestoreSubscription(unsubscribe);
       // Return an unsubscribe function to stop listening for updates
       return unsubscribe;
     } catch (error) {

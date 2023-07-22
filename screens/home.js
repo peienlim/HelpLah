@@ -7,6 +7,7 @@ import Event from '../components/home page components/Event';
 
 import { db } from '../firebaseConfigDB';
 import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
+import { addFirestoreSubscription } from '../FirestoreManager';
 
 import { getAuth } from "firebase/auth";
 
@@ -74,6 +75,7 @@ export default function HomeScreen({navigation}) {
           console.log(eventDCs);
       });
 
+      addFirestoreSubscription(unsubscribe);
       // Return an unsubscribe function to stop listening for updates
       return unsubscribe;
     } catch (error) {
@@ -122,6 +124,7 @@ export default function HomeScreen({navigation}) {
         setProductiveHours(roundedHours);
       });
 
+      addFirestoreSubscription(unsubscribe);
       // Return an unsubscribe function to stop listening for updates
       return unsubscribe;
     } catch (error) {
@@ -156,6 +159,7 @@ export default function HomeScreen({navigation}) {
         setTotalTasks(filteredTasks.length);
       });
 
+      addFirestoreSubscription(unsubscribe);
       // Return an unsubscribe function to stop listening for updates
       return unsubscribe;
     } catch (error) {

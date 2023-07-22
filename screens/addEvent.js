@@ -9,6 +9,7 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
 import { doc, setDoc, collection, onSnapshot } from 'firebase/firestore';
+import { addFirestoreSubscription } from '../FirestoreManager';
 
 import { generateUUID } from '../hook/generateUUID';
 
@@ -120,6 +121,7 @@ export default function AddEvent({navigation}) {
 
         });
 
+        addFirestoreSubscription(unsubscribe);
         return unsubscribe;
 
       } catch (error) {

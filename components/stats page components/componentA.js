@@ -11,6 +11,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import moment from 'moment';
 
 import { VictoryPie, VictoryBar, VictoryChart, VictoryTheme, VictoryAxis } from 'victory-native';
+import { addFirestoreSubscription } from '../../FirestoreManager';
 
 
 export default function DailyComponent() {
@@ -224,6 +225,7 @@ export default function DailyComponent() {
             });
 
             unsubscribeFunctions.push(unsubscribe);
+            addFirestoreSubscription(unsubscribe);
 
             // Return an unsubscribe function to stop listening for updates
             return unsubscribe;
@@ -308,9 +310,10 @@ export default function DailyComponent() {
     useEffect(() => {
         pickDate(selectedDate);
 
+        
         return () => {
             unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
-        };
+        }; 
     }, [selectedDate]);
 
     const TaskBox = ({ description, duration, category, color, module }) => {
@@ -364,7 +367,7 @@ export default function DailyComponent() {
                     <View style={styles.overviewContainer}>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Time Focused (min):</Text>
-                            <Text style={styles.overviewValue}>{(dailyFocusHour/60)}</Text>
+                            <Text style={styles.overviewValue}>{(dailyFocusHour/60).toFixed(0)}</Text>
                         </View>
                         <View style={styles.overviewItem}>
                             <Text style={styles.overviewLabel}>Items Completed:</Text>

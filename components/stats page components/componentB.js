@@ -5,6 +5,8 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../../firebaseConfigDB';
 import { collection, onSnapshot, getDocs, where, query } from 'firebase/firestore';
 
+import { addFirestoreSubscription } from '../../FirestoreManager';
+
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import moment from 'moment';
 
@@ -215,6 +217,7 @@ export default function WeeklyComponent() {
             });
 
             unsubscribeFunctions.push(unsubscribe);
+            addFirestoreSubscription(unsubscribe);
 
             // Return an unsubscribe function to stop listening for updates
             return unsubscribe;
@@ -288,6 +291,7 @@ export default function WeeklyComponent() {
             });
 
             unsubscribeFunctionsFC.push(unsubscribe);
+            addFirestoreSubscription(unsubscribe);
 
             // Return an unsubscribe function to stop listening for updates
             return unsubscribe;
@@ -389,7 +393,7 @@ export default function WeeklyComponent() {
                             <Text style={{ paddingTop: 7 }}>No completed blocks for this week</Text>
                         )}
                         
-                        <View style={[styles.pieContainer, { height: catPieContainerHeight }]}>
+                        <View style={styles.pieContainer}>
                             <View style={styles.pieView}>
                                 <View style={styles.pie}>
                                     <VictoryPie
@@ -436,7 +440,7 @@ export default function WeeklyComponent() {
                             <Text style={{ paddingTop: 7 }}>No completed blocks for this week</Text>
                         )}
 
-                        <View style={[styles.pieContainer, { height: modPieContainerHeight }]}>
+                        <View style={styles.pieContainer}>
                             <View style={styles.pieView}>
                                 <View style={styles.pie}>
                                     <VictoryPie
@@ -484,7 +488,7 @@ export default function WeeklyComponent() {
                             <Text style={{ paddingTop: 7 }}>No completed blocks for this week</Text>
                         )}
 
-                        <View style={[styles.pieContainer, { height: modPieContainerHeight }]}>
+                        <View style={styles.pieContainer}>
                             <View style={styles.pieView}>
                                 <View style={styles.pie}>
                                     <VictoryPie
@@ -623,14 +627,14 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginHorizontal: 20,
         borderRadius: 10,
-        height: 210
+        height: 240,
     },
     
     pieHeading: {
         fontFamily: 'spacemono',
         fontSize: 19,
         paddingTop: 20,
-        paddingBottom: 10,
+        paddingBottom: 5,
         flex: 1
     },
 

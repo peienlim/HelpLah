@@ -20,17 +20,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker from 'react-native-wheel-color-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 
+import { cleanupFirestoreSubscriptions, addFirestoreSubscription } from '../FirestoreManager';
+
+
 export default function ProfileScreen({navigation}) {
-
-  async function handleSignOut() {
-    try {
-      await signOut(auth);
-      await navigation.navigate("LoginScreen")
-
-    } catch(error) {
-      Alert.alert("Try again")
-    }
-  }
 
   const auth = getAuth();
   const userEmail = auth.currentUser.email;
@@ -76,6 +69,7 @@ export default function ProfileScreen({navigation}) {
     try {
       await signOut(auth);
       await navigation.navigate("LoginScreen")
+      cleanupFirestoreSubscriptions();
 
     } catch(error) {
       Alert.alert("Try again")
@@ -440,7 +434,7 @@ export default function ProfileScreen({navigation}) {
     }
 
     const alertPopUp = () => {
-      Alert.alert("Delete previous timetable", "Are you sure you want to delete? (you will be able to upload a new timetable after successful deletion)", [
+      Alert.alert("Delete previous timetable", "Are you sure you want to delete? Previous classes, events and tasks creted will be affected.", [
           {
               text: 'Cancel',
               onPress: () => console.log('Cancel'),
@@ -474,6 +468,7 @@ export default function ProfileScreen({navigation}) {
 
       })
       
+      addFirestoreSubscription(unsubscribe);
       return unsubscribe;
 
     } catch (error) {

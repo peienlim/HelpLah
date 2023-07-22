@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import moment from 'moment';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import { addFirestoreSubscription } from '../../FirestoreManager';
+
 export default function DailyView() {
   const auth = getAuth();
   const userEmail = auth.currentUser.email;
@@ -60,6 +62,8 @@ export default function DailyView() {
         console.log(myEvents);
       });
 
+      addFirestoreSubscription(unsubscribe);
+      
       // Return an unsubscribe function to stop listening for updates
       return unsubscribe;
     } catch (error) {
@@ -152,6 +156,7 @@ export default function DailyView() {
       <View style={styles.overlay}>
         <Text style={styles.header}>Today's Schedule:</Text>
       </View> 
+
       <View style={styles.calendar}>
         <WeekView
           events={myEvents}
@@ -166,13 +171,13 @@ export default function DailyView() {
           gridRowStyle={styles.gridRow}
           hourContainerStyle={styles.hourContainer}
           formatDateHeader='ddd D'
-          allowScrollByDay={true}
           hoursInDisplay={6}
           timeStep={30}
-          timesColumnWidth={0.14}
+          timesColumnWidth={40}
           startHour={currentTimeInMinutes}
           showNowLine={true}
           fixedHorizontally={true}
+          allowScrollByDay={true}
           onEventPress={handleTickEvent}
           onEventLongPress={(event) => handleLongPress(event)}
         />
@@ -226,9 +231,11 @@ const styles = StyleSheet.create({
       //border: 1,
       borderColor: 'white',
       paddingBottom: 20,
+      width: '100%'
     },
     weekViewContainer: {
       flex: 1,
+      alignItems: 'center'
     },
     weekViewHeader: {
       flex: 0,
@@ -238,7 +245,7 @@ const styles = StyleSheet.create({
       fontFamily: 'spacemono',
     },
     eventContainer: {
-      //borderRadius: 10,
+      borderRadius: 10,
     },
     gridColumn: {
       borderTopWidth: 1
@@ -248,7 +255,7 @@ const styles = StyleSheet.create({
     },
     eventText: {
       fontFamily:'spacemono-bold', 
-      fontSize: 30, 
+      fontSize: 20, 
       /* paddingBottom: 35, 
       paddingRight: 200, 
       paddingTop: 50, */

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebaseConfigDB';
 import { collection, onSnapshot } from 'firebase/firestore';
+import { addFirestoreSubscription } from '../FirestoreManager';
 
 export const getDailyFocusHr = (currDate) => {
     const [totalDuration, setTotalDuration] = useState(0);
@@ -25,6 +26,8 @@ export const getDailyFocusHr = (currDate) => {
 
             setTotalDuration(sumOfDurations);
         });
+        
+        addFirestoreSubscription(unsubscribe);
         return unsubscribe;
     }, [currDate]);
 
